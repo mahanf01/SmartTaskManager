@@ -1,0 +1,31 @@
+flowchart TB
+    user["<b>Nutzer</b><br/>[Person]"]
+
+    subgraph vercel["Vercel (Region Frankfurt, fra1)"]
+        direction TB
+        web["<b>Web-Frontend</b><br/>[Next.js / React, im Browser]<br/><br/>Aufgabenliste, Formulare,<br/>responsives Layout"]
+        api["<b>API</b><br/>[Next.js Route Handlers, TypeScript]<br/><br/>REST-API /api/v1,<br/>Validierung, Priorisierung"]
+        auth["<b>Auth</b><br/>[Auth.js]<br/><br/>Registrierung, Login,<br/>Session-Cookie"]
+        cron["<b>Erinnerungs-Job</b><br/>[Vercel Cron, täglich]<br/><br/>Sucht fällige Aufgaben,<br/>verschickt E-Mails"]
+    end
+
+    db[("<b>Datenbank</b><br/>[PostgreSQL, Neon, EU Frankfurt]<br/><br/>Nutzer, Aufgaben,<br/>Kategorien")]
+    mail["<b>E-Mail-Dienst</b><br/>[Resend, extern]"]
+
+    user -- "Nutzt<br/>[HTTPS]" --> web
+    web -- "JSON-Aufrufe<br/>[HTTPS]" --> api
+    web -- "Login / Logout" --> auth
+    api -- "Prüft Session" --> auth
+    api -- "Liest/schreibt<br/>[Prisma, SQL/TLS]" --> db
+    auth -- "Liest Nutzer<br/>[Prisma, SQL/TLS]" --> db
+    cron -- "Liest fällige Aufgaben<br/>[Prisma, SQL/TLS]" --> db
+    cron -- "Sendet E-Mail<br/>[HTTPS-API]" --> mail
+    mail -- "E-Mail" --> user
+
+    classDef person fill:#08427b,stroke:#052e56,color:#fff
+    classDef container fill:#438dd5,stroke:#2e6295,color:#fff
+    classDef external fill:#999999,stroke:#6b6b6b,color:#fff
+    class user person
+    class web,api,auth,cron,db container
+    class mail external
+    style vercel fill:none,stroke:#888,stroke-dasharray: 5 5

@@ -1,0 +1,34 @@
+erDiagram
+    USER ||--o{ TASK : "besitzt"
+    USER ||--o{ CATEGORY : "legt an"
+    CATEGORY |o--o{ TASK : "gruppiert"
+
+    USER {
+        uuid id PK
+        string email UK "eindeutig, klein geschrieben"
+        string password_hash "argon2id"
+        string timezone "Standard Europe/Vienna"
+        boolean reminders_enabled "Standard true"
+        timestamptz created_at
+    }
+
+    TASK {
+        uuid id PK
+        uuid user_id FK
+        string title "Pflicht, 1-200 Zeichen"
+        text notes "optional"
+        date due_date "optional, nur Datum"
+        smallint importance "1-10, Standard 5"
+        string manual_pin "TOP, BOTTOM oder NULL"
+        uuid category_id FK "optional (Could)"
+        timestamptz completed_at "NULL = offen"
+        timestamptz reminder_sent_at "NULL = noch nicht erinnert"
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    CATEGORY {
+        uuid id PK
+        uuid user_id FK
+        string name "eindeutig pro Nutzer"
+    }

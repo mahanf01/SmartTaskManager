@@ -1,0 +1,34 @@
+flowchart TB
+    web["<b>Web-Frontend</b><br/>[Container]"]
+    cron["<b>Erinnerungs-Job</b><br/>[Container]"]
+
+    subgraph api["API (Next.js Route Handlers)"]
+        direction TB
+        routes["<b>Route Handlers</b><br/>/api/v1/tasks, /api/v1/me, ...<br/><br/>HTTP, Statuscodes"]
+        valid["<b>Validierung</b><br/>[Zod-Schemas]<br/><br/>Prüft Eingaben, z. B. Titel,<br/>Wichtigkeit 1–10"]
+        service["<b>TaskService</b><br/><br/>Anwendungslogik: anlegen,<br/>ändern, erledigen, anpinnen"]
+        prio["<b>Priorisierung</b><br/>[reine Funktion]<br/><br/>Dringlichkeit, Score,<br/>Sortierung"]
+        reminder["<b>ReminderService</b><br/><br/>Findet Aufgaben mit Frist morgen,<br/>merkt gesendete Erinnerungen"]
+        repo["<b>Repository</b><br/>[Prisma Client]<br/><br/>Datenzugriff, immer<br/>gefiltert nach userId"]
+    end
+
+    db[("<b>PostgreSQL</b><br/>[Container]")]
+    mail["<b>E-Mail-Dienst</b><br/>[extern]"]
+
+    web --> routes
+    routes --> valid
+    routes --> service
+    service --> prio
+    service --> repo
+    cron --> reminder
+    reminder --> repo
+    reminder --> mail
+    repo --> db
+
+    classDef container fill:#438dd5,stroke:#2e6295,color:#fff
+    classDef component fill:#85bbf0,stroke:#5d82a8,color:#000
+    classDef external fill:#999999,stroke:#6b6b6b,color:#fff
+    class web,cron,db container
+    class routes,valid,service,prio,reminder,repo component
+    class mail external
+    style api fill:none,stroke:#888,stroke-dasharray: 5 5
