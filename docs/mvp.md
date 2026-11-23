@@ -29,7 +29,7 @@ Der folgende Ablauf muss im MVP vollständig funktionieren und wird bei der Abna
 | F3 | Frist (Datum, optional) und Wichtigkeit (1–10, Standard 5) | US3, US4 |
 | F4 | Automatische Sortierung nach der Priorisierungsregel, Markierung überfälliger Aufgaben | US5 |
 | F5 | Aufgaben abhaken, Ansicht „Erledigt“, Abhaken rückgängig machen | US6 |
-| F9 | Konto mit allen Daten löschen | US11 |
+| F9 | Konto mit allen Aufgaben löschen | US11 |
 
 ## Enthaltene nichtfunktionale Anforderungen
 
@@ -38,7 +38,7 @@ Der folgende Ablauf muss im MVP vollständig funktionieren und wird bei der Abna
 | NF1 | Aufgabe in unter 10 Sekunden anlegen |
 | NF3 | Passwörter gehasht speichern |
 | NF4 | Nutzbar als Web-App in aktuellen Versionen von Chrome, Firefox, Edge und Safari |
-| NF5 | DSGVO-Grundanforderungen: keine Profildaten über E-Mail und Passwort hinaus, Konto mit allen Aufgaben löschen, Speicherung in der EU |
+| NF5 | DSGVO-Grundanforderungen: nur E-Mail, Passwort-Hash, Aufgaben sowie technisch nötige Sitzungs- und Protokolldaten des Auth-Dienstes, keine weiteren Profildaten; Konto mit allen Aufgaben löschen, Speicherung in der EU |
 
 ## Nicht im MVP
 

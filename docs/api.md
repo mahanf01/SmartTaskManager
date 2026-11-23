@@ -29,7 +29,7 @@
 | `POST` | `/api/tasks` | Aufgabe anlegen | F2, F3, US2–US4 | ja |
 | `PATCH` | `/api/tasks/{id}` | Aufgabe ändern, Frist entfernen, abhaken, Abhaken rückgängig | F2, F3, F5, US3, US4, US6, US7 | ja |
 | `DELETE` | `/api/tasks/{id}` | Aufgabe löschen | F2, US7 | ja |
-| `DELETE` | `/api/account` | Konto mit allen Daten löschen (mit Passwort) | F9, US11 | ja |
+| `DELETE` | `/api/account` | Konto mit allen Aufgaben löschen (mit Passwort) | F9, US11 | ja |
 | `POST` | `/api/auth/password-reset` | Link zum Zurücksetzen anfordern | F10, US12 | nein (Should) |
 | `POST` | `/api/auth/password` | Neues Passwort setzen (mit Session aus dem Link) | F10, US12 | nein (Should) |
 
@@ -106,18 +106,19 @@ Request:
 - `password`: mindestens 8 Zeichen. Dieselbe Mindestlänge ist in den Supabase-Auth-Einstellungen gesetzt (Standard dort: 6), damit API und Auth-Dienst gleich prüfen – auch beim späteren Setzen eines neuen Passworts (F10).
 
 Antwort `201`: `{ "user": { "id": "…", "email": "anna@example.com" } }` und Session-Cookie. Keine E-Mail-Bestätigung (requirements.md #15).
-Fehler: `400`, `409`, `429`.
+Fehler: `400`, `409`, `415`, `429`.
 
 **Bewusst in Kauf genommen:** `409 EMAIL_TAKEN` verrät, ob eine E-Mail-Adresse registriert ist. Die Alternative – immer gleich antworten und den Inhaber per E-Mail informieren – braucht E-Mail-Versand, den das MVP nicht hat (requirements.md #15). Für eine Aufgaben-App ohne sensible Inhalte ist das vertretbar. Beim Passwort-Reset (F10) wird die Information dagegen nicht preisgegeben, weil dort der E-Mail-Versand ohnehin vorhanden ist.
 
 ### `POST /api/auth/login`
 
 Request wie bei der Registrierung. Antwort `200`: `{ "user": { … } }` und Session-Cookie.
-Fehler: `400`, `401 INVALID_CREDENTIALS`, `429`.
+Fehler: `400`, `401 INVALID_CREDENTIALS`, `415`, `429`.
 
 ### `POST /api/auth/logout`
 
 Kein Body. Antwort `204`, Session-Cookies werden gelöscht.
+Fehler: `401`.
 
 ### `GET /api/tasks`
 
@@ -192,7 +193,7 @@ Request:
 3. Die Session-Cookies werden gelöscht.
 
 Antwort `204`.
-Fehler: `400`, `401`, `415`.
+Fehler: `400`, `401`, `415`, `429` (Passwortprüfung zählt als Anmeldeversuch).
 
 Sicherheit: Dieser Endpunkt verwendet als einziger den geheimen Admin-Schlüssel (Service-Role- bzw. Secret-Key, Risiko R6 in architecture.md) – über einen **eigenen** Supabase-Client ohne Cookies (`persistSession: false`, `autoRefreshToken: false`). Würde man den Admin-Schlüssel mit dem Cookie-Client kombinieren, könnte das Token des Nutzers den Admin-Schlüssel überschreiben. Die zu löschende Nutzer-ID kommt ausschließlich aus der Session.
 

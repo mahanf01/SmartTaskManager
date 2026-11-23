@@ -32,7 +32,7 @@ Nicht jede Anforderung beeinflusst die Architektur. Diese hier schon (Details in
 | NF4 Web-App in aktuellen Browsern | Browserbasierte Web-App, keine native App |
 | F6 Erinnerung in der App (Should) | Wird beim Öffnen der App berechnet – **kein** Hintergrundjob, kein Mail-Dienst nötig |
 
-Wichtig für den Scope: Das MVP braucht **keine** Hintergrundprozesse, keine Echtzeit-Funktionen, keinen Datei-Upload und keine externen APIs außer der Datenbank.
+Wichtig für den Scope: Das MVP braucht **keine** Hintergrundprozesse, keine Echtzeit-Funktionen, keinen Datei-Upload und keine externen Dienste außer Supabase (Datenbank und Login).
 
 ### Rahmenbedingungen
 
@@ -47,7 +47,7 @@ Alle Varianten verwenden Next.js für die Oberfläche, weil das Team es kennt. S
 
 ### Variante A – Modularer Monolith mit Next.js (Full-Stack)
 
-Eine Next.js-Anwendung enthält Oberfläche **und** Backend. Das Backend besteht aus Route Handlers (REST-API unter `/api/...`) bzw. serverseitigem Code. Die Logik ist intern in Module getrennt (Auth, Aufgaben, Priorisierung, Konto). Daten liegen in einer verwalteten PostgreSQL-Datenbank; Login übernimmt ein verwalteter Auth-Dienst (gewählt: Supabase, siehe Kapitel 5).
+Eine Next.js-Anwendung enthält Oberfläche **und** Backend. Das Backend besteht aus Route Handlers (REST-API unter `/api/...`). Die Logik ist intern in Module getrennt (Auth, Aufgaben, Priorisierung, Konto). Daten liegen in einer verwalteten PostgreSQL-Datenbank; Login übernimmt ein verwalteter Auth-Dienst (gewählt: Supabase, siehe Kapitel 5).
 
 ```mermaid
 flowchart LR
@@ -141,13 +141,13 @@ Kein Argument gegen C ist dagegen die Manipulierbarkeit der Sortierung im Browse
 
 | Modul | Verantwortung |
 |---|---|
-| `auth` | Registrierung, Login, Logout, Session-Prüfung (über Supabase Auth) |
+| `auth` | Registrierung, Login, Logout, Session-Prüfung, Middleware zur Token-Erneuerung (über Supabase Auth) |
 | `tasks` | Aufgaben anlegen, lesen, ändern, löschen, abhaken |
 | `prioritization` | Reine Funktion: Score berechnen und Liste sortieren – keine Abhängigkeit zu DB oder UI |
-| `account` | Konto mit allen Daten löschen (Supabase Admin-API; Aufgaben werden per Fremdschlüssel mitgelöscht) |
+| `account` | Konto mit allen Aufgaben löschen (Supabase Admin-API; Aufgaben werden per Fremdschlüssel mitgelöscht) |
 | `ui` | Seiten und Komponenten (Liste, Formular, Ansicht „Erledigt“) |
 
-Regel: Module greifen nur über ihre öffentliche Schnittstelle aufeinander zu; nur `tasks`, `auth` und `account` sprechen mit Supabase.
+Regel: Module greifen nur über ihre öffentliche Schnittstelle aufeinander zu; nur `tasks`, `auth` und `account` sprechen mit Supabase. Die Middleware zur Token-Erneuerung gehört zum Modul `auth`.
 
 ## 5. Technologieauswahl
 
@@ -157,7 +157,7 @@ Regel: Module greifen nur über ihre öffentliche Schnittstelle aufeinander zu; 
 | Framework | Next.js (App Router) | Team-Know-how; UI und API in einem Projekt | Remix, SvelteKit | entschieden ([ADR-001](adr/001-modularer-monolith-nextjs.md)) |
 | API-Stil | REST über Route Handlers | Endpunkte lassen sich mit HTTP-Tests direkt prüfen (inkl. Sortierung mit festem `today`); klare Grenze zwischen UI und Logik | Server Actions (keine eigenständig aufrufbaren Endpunkte) | entschieden ([ADR-001](adr/001-modularer-monolith-nextjs.md)) |
 | Datenbank | PostgreSQL bei Supabase, EU-Region | Relationale Daten (Nutzer 1 : n Aufgaben); EU-Region erfüllt NF5; Erfahrung im Team; serverlose Umgebung hat kein dauerhaftes Dateisystem, daher kein SQLite | Neon (nur Datenbank, ohne Login), SQLite/libSQL (Turso), MongoDB | entschieden ([ADR-002](adr/002-supabase-fuer-datenbank-und-auth.md)) |
-| Authentifizierung | Supabase Auth (E-Mail/Passwort) | Im selben Dienst und derselben EU-Region wie die Datenbank; Passwort-Hashing eingebaut (NF3); Session-Cookies serverseitig über `@supabase/ssr` (explizit HTTP-only), Token-Erneuerung per Middleware; Erfahrung im Team | Auth.js, Better Auth (mehr eigener Code), Clerk (Nutzerdaten bei weiterem Drittanbieter, NF5) | entschieden ([ADR-002](adr/002-supabase-fuer-datenbank-und-auth.md)) |
+| Authentifizierung | Supabase Auth (E-Mail/Passwort) | Im selben Dienst und derselben EU-Region wie die Datenbank; Passwort-Hashing eingebaut (NF3); Session-Cookies serverseitig über `@supabase/ssr` (explizit HTTP-only), Token-Erneuerung per Middleware; Erfahrung im Team | Auth.js, Better Auth (mehr eigener Code, zusätzlich Datenbank nötig), Clerk (Nutzerdaten bei weiterem Drittanbieter, NF5) | entschieden ([ADR-002](adr/002-supabase-fuer-datenbank-und-auth.md)) |
 | Datenbankzugriff | `supabase-js` serverseitig, mit der Session des Nutzers | Zugriffsregeln (RLS) greifen als zweite Schutzschicht; Erfahrung im Team; Zugriff über HTTP statt direkter DB-Verbindungen (entschärft R2) | Prisma, Drizzle (verbinden sich als DB-Besitzer und umgehen RLS) | entschieden |
 | Migrationen | Supabase CLI (SQL-Migrationsdateien im Repository) | Schema versioniert und reproduzierbar | Änderungen im Dashboard (nicht nachvollziehbar) | entschieden |
 | Validierung | Zod (Schemas für Request-Body und Parameter) | Eine Schema-Definition liefert Prüfung und TypeScript-Typen | manuelle Prüfungen | entschieden |
@@ -234,7 +234,7 @@ Die PNG-Bilder in [diagrams/](diagrams/) sind aus dem Mermaid-Quelltext erzeugt;
 | R8 | **Brute-Force beim Login:** Weil alle Login-Anfragen über den eigenen Server laufen, sieht Supabase nur die IP-Adressen von Vercel. Die Limits pro IP-Adresse des Auth-Dienstes wirken dann für alle Nutzer gemeinsam statt pro Angreifer. | Passwort-Raten wird nicht pro Angreifer gebremst; im schlimmsten Fall sperrt das Limit alle Nutzer | Im MVP mit Testkonten akzeptiert; die API meldet `429`. Vor einem Echtbetrieb eigenes Limit pro Client-IP (z. B. im Route Handler) ergänzen. |
 | R9 | **CSRF:** Session in Cookies – eine fremde Webseite könnte Anfragen im Namen des Nutzers auslösen, z. B. Konto löschen. | Ungewollte Änderungen | `SameSite=Lax` und JSON-Pflicht (api.md); Konto löschen zusätzlich nur mit Passwort. |
 | R10 | **Test- und Vorschaudaten:** Vorschau-Deployments und E2E-Tests (die u. a. Konten löschen) nutzen dieselbe Datenbank wie die Demo. | Vermischte Testdaten, versehentlich gelöschte Demo-Konten | Im Semester nur Testdaten und Testkonten; vor der Abnahme Datenbank-Export. Optional ein zweites kostenloses Supabase-Projekt, spätestens vor echten Nutzern ([hosting.md](hosting.md#5-umgebungen)). |
-| R11 | **Auth-Protokolle:** Supabase speichert IP-Adressen in Protokollen, die beim Konto-Löschen nicht mitgelöscht werden. | „Alle Daten löschen“ nur für Konto und Aufgaben erfüllt (NF5) | Vor einem Echtbetrieb Aufbewahrung klären (requirements.md #17). |
+| R11 | **Auth-Protokolle:** Supabase speichert IP-Adressen in Protokollen, die beim Konto-Löschen nicht mitgelöscht werden. | Nach dem Löschen von Konto und Aufgaben bleiben Protokolleinträge bestehen (NF5) | Vor einem Echtbetrieb Aufbewahrung klären (requirements.md #17). |
 
 ## 9. Weitere Dokumente
 

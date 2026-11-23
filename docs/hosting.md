@@ -24,11 +24,12 @@
 | **Kaltstart / Schlafmodus** | Serverless, kurze Kaltstarts | Serverless | schläft nach 15 min ohne Anfragen, Aufwachen dauert ca. 1 Minute | – | läuft dauerhaft |
 | **Deployment aus GitHub** | automatisch, mit Vorschau-Deployments | automatisch | automatisch | automatisch | selbst einrichten (z. B. GitHub Actions) |
 | **Betriebsaufwand** | sehr gering | gering | gering | gering | hoch: Betriebssystem-Updates, TLS, Firewall, Überwachung |
-| **DPA** | nur für Pro und Enterprise | vorhanden, Teil der Nutzungsbedingungen; ob für den Gratis-Tarif, nicht eindeutig ¹ | nicht geprüft (scheidet aus anderen Gründen aus) | nicht geprüft (scheidet aus anderen Gründen aus) | Auftragsverarbeitungsvertrag (AVV) im Kundenkonto abschließbar, nicht automatisch; Daten bei Standort Deutschland in der EU |
+| **DPA** | nur für Pro und Enterprise | vorhanden, Teil der Nutzungsbedingungen; ob für den Gratis-Tarif, nicht eindeutig ³ | nicht geprüft (scheidet aus anderen Gründen aus) | nicht geprüft (scheidet aus anderen Gründen aus) | Auftragsverarbeitungsvertrag (AVV) im Kundenkonto abschließbar, nicht automatisch; Daten bei Standort Deutschland in der EU |
 | **Bei Überschreiten der Limits** | Funktion pausiert bis zu 30 Tage, keine Kosten | Projekt pausiert ¹ | Dienste ruhen bis Monatsende | – | – |
 
 ¹ Nur aus Drittquellen, auf der offiziellen Seite nicht gefunden.
 ² Nicht auf der Preisseite angegeben; Netlify unterstützt Next.js über einen eigenen Adapter.
+³ Offizielle Seiten gelesen, aber ohne eindeutige Aussage zum Gratis-Tarif.
 
 **Bewertung:**
 
@@ -114,7 +115,7 @@ Alle abgerufen am 23.11.2026.
 
 - Vercel: [Preise](https://vercel.com/pricing), [Hobby-Tarif](https://vercel.com/docs/plans/hobby), [Funktions-Regionen](https://vercel.com/docs/functions/configuring-functions/region), [Regionen-Liste](https://vercel.com/docs/regions), [Cron Jobs](https://vercel.com/docs/cron-jobs/usage-and-pricing), [Fair-Use-Richtlinien](https://vercel.com/docs/limits/fair-use-guidelines), [DPA](https://vercel.com/legal/dpa)
 - Supabase: [Preise](https://supabase.com/pricing), [Regionen](https://supabase.com/docs/guides/platform/regions), [SMTP](https://supabase.com/docs/guides/auth/auth-smtp), [Rate Limits](https://supabase.com/docs/guides/auth/rate-limits), [DPA](https://supabase.com/legal/dpa)
-- Netlify: [Preise](https://www.netlify.com/pricing/)
+- Netlify: [Preise](https://www.netlify.com/pricing/), [GDPR-Seite](https://www.netlify.com/gdpr-ccpa/) und [DPA (PDF)](https://www.netlify.com/pdf/netlify-dpa.pdf) ³
 - Render: [Preise](https://render.com/pricing), [Gratis-Tarif](https://render.com/docs/free)
 - Hetzner: [Cloud](https://www.hetzner.com/cloud/), [Datenschutz bei Hetzner (AVV)](https://docs.hetzner.com/de/general/company-and-policy/data-protection-at-hetzner/)
 
@@ -123,4 +124,3 @@ Alle abgerufen am 23.11.2026.
 - [Vercel Hobby: nicht-kommerzielle Nutzung (convika.com)](https://convika.com/compare/vercel-hobby-commercial-use/)
 - [Railway vs Render 2026 (dev.to)](https://dev.to/selfhost/railway-vs-render-pricing-reliability-the-2026-verdict-2fpp)
 - [Netlify Preisübersicht 2026 (toolchase.com)](https://toolchase.com/blog/netlify-pricing-guide/)
-- Netlify DPA: [GDPR-Seite](https://www.netlify.com/gdpr-ccpa/), [DPA (PDF)](https://www.netlify.com/pdf/netlify-dpa.pdf) – offizielle Seiten, aber ohne eindeutige Aussage zum Gratis-Tarif

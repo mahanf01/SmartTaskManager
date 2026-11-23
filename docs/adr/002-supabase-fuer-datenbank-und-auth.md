@@ -18,7 +18,7 @@ Supabase (Region Frankfurt, `eu-central-1`) stellt PostgreSQL und Auth bereit.
 
 ## Betrachtete Alternativen
 
-- **Eigene Auth-Bibliothek (Auth.js, Better Auth) + Datenbank + ORM (Prisma/Drizzle):** ursprüngliche AI-Empfehlung; verworfen – mehr eigener Code, zwei zusätzliche Technologieentscheidungen, keine Team-Erfahrung. Prisma/Drizzle würden sich als Datenbank-Besitzer verbinden und RLS umgehen.
+- **Eigene Auth-Bibliothek (Auth.js, Better Auth) + Datenbank + ORM (Prisma/Drizzle):** ursprüngliche AI-Empfehlung; verworfen – mehr eigener Code und mehrere Bausteine für das, was Supabase in einem Dienst mitbringt. Auch der zweite AI-Entwurf im Team (Neon + Prisma + Auth.js) ging in diese Richtung. Auth.js wird inzwischen vom Better-Auth-Team betreut ([Ankündigung, September 2025](https://better-auth.com/blog/authjs-joins-better-auth)); von beiden wäre Better Auth unsere Wahl gewesen. Prisma/Drizzle würden sich als Datenbank-Besitzer verbinden und RLS umgehen.
 - **Externer Auth-Dienst (z. B. Clerk):** verworfen – Nutzerdaten bei einem weiteren Drittanbieter (NF5).
 - **SQLite/libSQL, MongoDB:** verworfen – SQLite ohne dauerhaftes Dateisystem nicht nutzbar; die Daten sind relational.
 
@@ -27,7 +27,7 @@ Supabase (Region Frankfurt, `eu-central-1`) stellt PostgreSQL und Auth bereit.
 - Passwort-Hashing (NF3), Sessions und „Passwort zurücksetzen“ (F10) bringt Supabase mit.
 - `ON DELETE CASCADE` auf `auth.users` löscht beim Konto-Löschen alle Aufgaben automatisch (F9).
 - `supabase-js` greift über HTTP zu – keine Probleme mit Datenbankverbindungen in serverloser Umgebung.
-- Abhängigkeit von Supabase. Die Daten liegen in normalem PostgreSQL und sind exportierbar; der Supabase-Zugriff ist auf drei Module beschränkt.
+- Abhängigkeit von Supabase. Die Daten liegen in normalem PostgreSQL und sind exportierbar; der Supabase-Zugriff ist auf drei Module beschränkt (`auth` inkl. Middleware, `tasks`, `account`).
 - Der eingebaute E-Mail-Versand ist nur für Team-Adressen nutzbar (2 pro Stunde). Für F10 ist ein eigener SMTP-Dienst nötig.
 - Der Service-Role-Key ist ein kritisches Geheimnis (Risiko R6 in architecture.md).
 - Supabase Auth speichert neben E-Mail und Passwort-Hash auch Sitzungs- und Protokolldaten (u. a. IP-Adresse); die Protokolle werden beim Konto-Löschen nicht mitgelöscht (requirements.md #17, Risiko R11).

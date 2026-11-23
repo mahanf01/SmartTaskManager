@@ -52,7 +52,7 @@ Der MVP-Scope ist in [mvp.md](mvp.md) beschrieben.
 | US8 | Als Nutzer möchte ich eine Erinnerung vor der Frist bekommen, damit ich nichts verpasse. | F6 | Should |
 | US9 | Als Nutzer möchte ich Aufgaben in Kategorien (z. B. Uni, Arbeit, Privat) einteilen, damit ich besser filtern kann. | F7 | Could |
 | US10 | Als Nutzer möchte ich eine Aufgabe anpinnen, damit sie ganz oben steht, wenn ich mit der automatischen Sortierung nicht einverstanden bin. | F8 | Should |
-| US11 | Als Nutzer möchte ich mein Konto mit allen Daten löschen, damit meine Daten nicht weiter gespeichert werden. | F9 | Must |
+| US11 | Als Nutzer möchte ich mein Konto mit allen Aufgaben löschen, damit meine Daten nicht weiter gespeichert werden. | F9 | Must |
 | US12 | Als Nutzer möchte ich mein Passwort zurücksetzen, wenn ich es vergessen habe, damit ich wieder an meine Aufgaben komme. | F10 | Should |
 
 ### Akzeptanzkriterien
@@ -126,7 +126,7 @@ Der MVP-Scope ist in [mvp.md](mvp.md) beschrieben.
 | F6 | Erinnerung in der App vor der Frist | US8 |
 | F7 | Kategorien und Filter | US9 |
 | F8 | Aufgaben anpinnen (manuelle Priorität) | US10 |
-| F9 | Konto mit allen Daten löschen | US11 |
+| F9 | Konto mit allen Aufgaben löschen | US11 |
 | F10 | Passwort per E-Mail-Link zurücksetzen | US12 |
 
 ## 5. Nichtfunktionale Anforderungen
@@ -135,7 +135,7 @@ Der MVP-Scope ist in [mvp.md](mvp.md) beschrieben.
 |---|---|---|
 | NF1 | Bedienbarkeit | Eine Aufgabe kann in unter 10 Sekunden angelegt werden. |
 | NF2 | Leistung | Die Aufgabenliste lädt in unter 2 Sekunden. |
-| NF3 | Sicherheit | Passwörter werden verschlüsselt (gehasht) gespeichert. |
+| NF3 | Sicherheit | Passwörter werden gehasht gespeichert, nie im Klartext. |
 | NF4 | Verfügbarkeit | Die App ist als Web-App in aktuellen Versionen von Chrome, Firefox, Edge und Safari nutzbar. |
 | NF5 | Datenschutz | DSGVO-Grundanforderungen: Gespeichert werden nur E-Mail, Passwort-Hash und die Aufgaben sowie die technisch nötigen Sitzungs- und Protokolldaten des Auth-Dienstes; keine weiteren Profildaten. Das Konto kann mit allen Aufgaben gelöscht werden (F9). Daten werden in der EU gespeichert. |
 | NF6 | Bedienbarkeit | Das Layout ist responsiv und auf Smartphones ab 360 px Bildschirmbreite bedienbar. |

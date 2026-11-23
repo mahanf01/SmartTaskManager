@@ -39,7 +39,7 @@ Das MVP enthält nur die Must-Anforderungen:
 - Frist und Wichtigkeit angeben
 - Automatische Sortierung
 - Aufgaben abhaken
-- Konto mit allen Daten löschen (DSGVO)
+- Konto mit allen Aufgaben löschen (DSGVO)
 
 Erinnerungen, Anpinnen und Kategorien folgen nach dem MVP. Details siehe [docs/mvp.md](docs/mvp.md).
 
@@ -61,6 +61,7 @@ Erinnerungen, Anpinnen und Kategorien folgen nach dem MVP. Details siehe [docs/m
 | [docs/data-model.md](docs/data-model.md) | Datenmodell: ER-Diagramm, Tabellen, SQL-Migration |
 | [docs/api.md](docs/api.md) | API-Design: REST-Endpunkte, Datenformate, Fehler |
 | [docs/hosting.md](docs/hosting.md) | Hosting-Vergleich: Anbieter, Kosten, Gratis-Limits, Entscheidung |
+| [docs/diagrams/](docs/diagrams/) | Architektur- und Sequenzdiagramm als Bild |
 | [docs/adr/](docs/adr/) | Architecture Decision Records |
 | [docs/ai-usage.md](docs/ai-usage.md) | Einsatz von AI in Phase 1 und 2 und Reflexion |
 

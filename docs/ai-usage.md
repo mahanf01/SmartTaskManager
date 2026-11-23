@@ -178,9 +178,24 @@ Zu jedem Punkt hat die AI Optionen mit einer Empfehlung genannt. Das Team hat di
 
 **Team-Entscheidungen dazu:** Konto löschen nur nach erneuter Passworteingabe (#18); ADR-003 blieb zunächst „vorgeschlagen“ und wurde danach vom Team angenommen.
 
-**Danach vereinfacht:** Wir haben gefragt, ob das Ergebnis nicht „over-engineered“ ist. Die AI hielt die Architektur für angemessen, nannte aber Details, die für unser Projekt zu viel sind. Daraufhin haben wir die `Origin`-Prüfung (`403`) gestrichen, den Ablauf von „Passwort zurücksetzen“ gekürzt und das zweite Supabase-Projekt sowie Playwright als optional eingestuft. Die Tabelle oben zeigt den Stand vor dieser Vereinfachung.
+**Danach vereinfacht:** Wir haben gefragt, ob das Ergebnis nicht „over-engineered“ ist. Die AI hielt die Architektur für angemessen, nannte aber Details, die für unser Projekt zu viel sind. Daraufhin haben wir die `Origin`-Prüfung (`403`) gestrichen, den Ablauf von „Passwort zurücksetzen“ gekürzt und das zweite Supabase-Projekt sowie Playwright als optional eingestuft. Außerdem haben wir die Diagramme gekürzt (C4-Ebene 3 gestrichen). Die Tabelle oben zeigt den Stand vor dieser Vereinfachung.
 
 **Nicht übernommen:** Ein Prüfer meinte, „Vercel Hobby nur nicht-kommerziell“ stehe in Vercels Fair-Use-Richtlinien. Die Recherche hatte genau diese Seite ohne Treffer durchsucht. Da sich die Aussagen widersprechen, bleibt die Angabe in hosting.md als „nur aus Drittquellen“ gekennzeichnet.
+
+## 6. Zweiter AI-Entwurf im Team (PR #2)
+
+Ein Teammitglied hat unabhängig davon mit Claude Code eine eigene Architektur entworfen (Pull Request #2). Beide Entwürfe kamen bei den Grundlagen zum selben Ergebnis: Next.js-Monolith, Hosting auf Vercel, Score nicht speichern. Unterschiede gab es vor allem hier:
+
+| Thema | Entwurf in PR #2 | Gewählt |
+|---|---|---|
+| Datenbank | Neon mit Prisma | Supabase (PostgreSQL) |
+| Login | Auth.js | Supabase Auth |
+| Lokales Datum | Zeitzone im Nutzerkonto | Browser schickt `today` ([ADR-003](adr/003-lokales-datum-als-api-parameter.md)) |
+| Erinnerungen | Cron-Job und E-Mail | Hinweis in der App |
+
+**Unsere Entscheidung:** Supabase bringt Datenbank und Login in einem Dienst mit und ersetzt damit Neon und Auth.js. Das ist einfacher. Auth.js sehen wir als veraltet an, von den eigenständigen Bibliotheken hätten wir Better Auth genommen ([ADR-002](adr/002-supabase-fuer-datenbank-und-auth.md)).
+
+**Lehre:** Zwei AI-Entwürfe zum selben Projekt können sich deutlich unterscheiden. Die AI liefert Vorschläge, auswählen und begründen müssen wir.
 
 # Reflexion Phase 2
 
