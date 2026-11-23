@@ -137,7 +137,7 @@ Variante C ist die stärkste Alternative und wäre für diese App ebenfalls umse
 
 Kein Argument gegen C ist dagegen die Manipulierbarkeit der Sortierung im Browser: Ein Nutzer könnte damit nur seine eigene Ansicht verändern (vgl. [ADR-003](adr/003-lokales-datum-als-api-parameter.md)).
 
-### Modulstruktur (Vorschlag)
+### Modulstruktur
 
 | Modul | Verantwortung |
 |---|---|
@@ -159,16 +159,16 @@ Regel: Module greifen nur über ihre öffentliche Schnittstelle aufeinander zu; 
 | Datenbank | PostgreSQL bei Supabase, EU-Region | Relationale Daten (Nutzer 1 : n Aufgaben); EU-Region erfüllt NF5; Erfahrung im Team; serverlose Umgebung hat kein dauerhaftes Dateisystem, daher kein SQLite | Neon (nur Datenbank, ohne Login), SQLite/libSQL (Turso), MongoDB | entschieden ([ADR-002](adr/002-supabase-fuer-datenbank-und-auth.md)) |
 | Authentifizierung | Supabase Auth (E-Mail/Passwort) | Im selben Dienst und derselben EU-Region wie die Datenbank; Passwort-Hashing eingebaut (NF3); Session-Cookies serverseitig über `@supabase/ssr` (explizit HTTP-only), Token-Erneuerung per Middleware; Erfahrung im Team | Auth.js, Better Auth (mehr eigener Code), Clerk (Nutzerdaten bei weiterem Drittanbieter, NF5) | entschieden ([ADR-002](adr/002-supabase-fuer-datenbank-und-auth.md)) |
 | Datenbankzugriff | `supabase-js` serverseitig, mit der Session des Nutzers | Zugriffsregeln (RLS) greifen als zweite Schutzschicht; Erfahrung im Team; Zugriff über HTTP statt direkter DB-Verbindungen (entschärft R2) | Prisma, Drizzle (verbinden sich als DB-Besitzer und umgehen RLS) | entschieden |
-| Migrationen | Supabase CLI (SQL-Migrationsdateien im Repository) | Schema versioniert und reproduzierbar | Änderungen im Dashboard (nicht nachvollziehbar) | Empfehlung |
-| Validierung | Zod (Schemas für Request-Body und Parameter) | Eine Schema-Definition liefert Prüfung und TypeScript-Typen | manuelle Prüfungen | Empfehlung |
-| Tests | Vitest (Unit); Playwright (Ende-zu-Ende) optional | Unit-Tests für Priorisierungsregel; E2E für den Demo-Ablauf aus mvp.md nur, wenn Zeit bleibt | Jest, Cypress | Empfehlung |
+| Migrationen | Supabase CLI (SQL-Migrationsdateien im Repository) | Schema versioniert und reproduzierbar | Änderungen im Dashboard (nicht nachvollziehbar) | entschieden |
+| Validierung | Zod (Schemas für Request-Body und Parameter) | Eine Schema-Definition liefert Prüfung und TypeScript-Typen | manuelle Prüfungen | entschieden |
+| Tests | Vitest (Unit); Playwright (Ende-zu-Ende) optional | Unit-Tests für Priorisierungsregel; E2E für den Demo-Ablauf aus mvp.md nur, wenn Zeit bleibt | Jest, Cypress | entschieden |
 | Hosting | Vercel Hobby (Region Frankfurt) + Supabase Free (Region Frankfurt) | Kostenlos, Next.js nativ, App und Datenbank in derselben EU-Region, automatisches Deployment aus GitHub | Netlify, Render, Railway, Hetzner – siehe [hosting.md](hosting.md) | entschieden ([ADR-004](adr/004-hosting-vercel-und-supabase-eu.md)) |
 
 ADRs: [001 Architekturstil](adr/001-modularer-monolith-nextjs.md), [002 Supabase](adr/002-supabase-fuer-datenbank-und-auth.md), [003 lokales Datum](adr/003-lokales-datum-als-api-parameter.md), [004 Hosting](adr/004-hosting-vercel-und-supabase-eu.md).
 
 ## 6. Architekturdiagramm (C4)
 
-Die Diagramme folgen dem [C4-Modell](https://c4model.com/): Kontext (Ebene 1) und Container (Ebene 2). Ebene 3 (Komponenten) entfällt; die Module des Servers beschreibt die [Modulstruktur in Kapitel 4](#modulstruktur-vorschlag).
+Die Diagramme folgen dem [C4-Modell](https://c4model.com/): Kontext (Ebene 1) und Container (Ebene 2). Ebene 3 (Komponenten) entfällt; die Module des Servers beschreibt die [Modulstruktur in Kapitel 4](#modulstruktur).
 
 ### Ebene 1 – Systemkontext
 
