@@ -1,0 +1,17 @@
+flowchart TB
+    user["<b>Nutzer</b><br/>[Person]<br/><br/>Studierende, Berufstätige,<br/>Privatpersonen"]
+
+    stm["<b>SmartTaskManager</b><br/>[Software-System]<br/><br/>Web-App zur Aufgabenverwaltung<br/>mit automatischer Priorisierung"]
+
+    mail["<b>E-Mail-Dienst</b><br/>[Externes System, z. B. Resend]<br/><br/>Verschickt Erinnerungs-E-Mails"]
+
+    user -- "Legt Aufgaben an, sieht<br/>priorisierte Liste<br/>[HTTPS, Browser]" --> stm
+    stm -- "Schickt Erinnerungen<br/>[HTTPS-API]" --> mail
+    mail -- "Erinnerung 1 Tag<br/>vor der Frist<br/>[E-Mail]" --> user
+
+    classDef person fill:#08427b,stroke:#052e56,color:#fff
+    classDef system fill:#1168bd,stroke:#0b4884,color:#fff
+    classDef external fill:#999999,stroke:#6b6b6b,color:#fff
+    class user person
+    class stm system
+    class mail external

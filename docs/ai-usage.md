@@ -1,6 +1,6 @@
 # AI-Einsatz und Reflexion – SmartTaskManager
 
-Dieses Dokument beschreibt, wie AI in Phase 1 (Anforderungsanalyse) eingesetzt wurde und was wir daraus gelernt haben.
+Dieses Dokument beschreibt, wie AI in Phase 1 (Anforderungsanalyse) und in der Architekturphase eingesetzt wurde und was wir daraus gelernt haben.
 
 ## Eingesetzte Tools
 
@@ -79,3 +79,51 @@ Diese Ergänzungen sind als **Vorschläge** gekennzeichnet und müssen vom Team 
 - Gute Ergebnisse hängen stark von präzisen Prompts ab – je mehr Kontext (Zielgruppe, Umfang), desto brauchbarer die Antwort.
 - AI eignet sich besonders gut als „Reviewer“, um eigene Anforderungen auf Lücken und Widersprüche zu prüfen.
 - Jede AI-Ausgabe muss kritisch geprüft werden; Verantwortung und Entscheidungen bleiben beim Team.
+
+---
+
+## AI-Einsatz in der Architekturphase
+
+### Eingesetzte Tools
+
+| Tool | Zweck |
+|---|---|
+| Claude Code | Repository lesen, Architekturvarianten vorschlagen und vergleichen, Diagramme (Mermaid) erstellen, ADRs und Dokumente schreiben, Hosting-Preise per Websuche nachprüfen |
+
+### Prompt
+
+> „Lies dich durch die Dateien im Repo und erstelle eine nachvollziehbare Softwarearchitektur mit AI-Unterstützung: mindestens zwei Architekturvarianten, Technologien auswählen und begründen, Architekturdiagramm (z. B. C4), Datenmodell, API-Design, mindestens zwei ADRs, die AI-generierte Architektur kritisch hinterfragen, Hosting-Möglichkeiten vergleichen.“
+
+Wichtig war, dass die AI das ganze Repository als Kontext hatte (Anforderungen, MVP-Scope, geplantes Vercel-Deployment).
+
+### Ergebnisse
+
+| Ergebnis | Dokument |
+|---|---|
+| Drei Architekturvarianten mit Vergleich und Empfehlung | [architecture.md, Kap. 3](architecture.md#3-untersuchte-architekturvarianten) |
+| Technologieauswahl mit Alternativen | [architecture.md, Kap. 5](architecture.md#5-technologieauswahl-und-begründung) |
+| C4-Diagramme (Kontext, Container, Komponenten), ER-Diagramm, Sequenzdiagramme | [architecture.md](architecture.md), [diagrams/](diagrams/) |
+| Datenmodell und REST-API | [architecture.md, Kap. 7 und 8](architecture.md#7-datenmodell) |
+| Fünf ADRs | [adr/](adr/README.md) |
+| Hosting-Vergleich mit Kosten | [hosting.md](hosting.md) |
+| Kritische Prüfung (12 Punkte) | [architecture.md, Kap. 10](architecture.md#10-kritische-prüfung-der-ai-generierten-architektur) |
+
+### Was wir kritisch geprüft haben
+
+- **Überdimensionierung:** Architekturen mit Microservices, Cache und Warteschlangen wären für unser MVP zu viel. Wir bleiben bei einem Monolithen.
+- **Veraltete Fakten:** Preise und Gratis-Limits aus dem AI-Wissen können falsch sein. Sie wurden per Websuche auf den Anbieterseiten nachgeprüft.
+- **Fachliche Fehler:** Ein gespeicherter Score wäre am nächsten Tag falsch; „heute“ hängt von der Zeitzone ab.
+- **Sicherheit:** Schutz gegen Passwort-Raten und gegen Zugriff auf fremde Aufgaben musste ausdrücklich ergänzt werden.
+- **Widerspruch in unseren eigenen Anforderungen:** Beim Ausarbeiten der Sortierung fiel auf, dass Aufgaben ohne Frist immer unten stehen, obwohl „Wichtigkeit schwerer gewichtet“ sein soll. Die AI hat das gemeldet, aber nicht selbst geändert – die Entscheidung liegt beim Team.
+
+### Reflexion
+
+**Gut:**
+- Schneller Überblick über mehrere Varianten mit klaren Vor- und Nachteilen.
+- Diagramme als Code (Mermaid) sind versionierbar und leicht zu ändern.
+- Die AI hat beim Umsetzen in konkrete Strukturen (Datenmodell, API) Lücken in den Anforderungen gefunden.
+
+**Grenzen:**
+- Ohne Kontext (Teamgröße, Vercel, Zeitrahmen) schlägt die AI eher zu große Lösungen vor.
+- Anbieterdaten müssen immer nachgeprüft werden.
+- Die AI kann Vor- und Nachteile nennen, aber nicht wissen, was dem Team wichtig ist (z. B. Lernziel vs. wenig Aufwand). Deshalb haben alle ADRs den Status *Vorgeschlagen*, bis das Team sie bestätigt.

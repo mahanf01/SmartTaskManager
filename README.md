@@ -47,6 +47,7 @@ Details siehe [docs/requirements.md](docs/requirements.md).
 | Phase | Inhalt | Status |
 |---|---|---|
 | Phase 1 | Anforderungsanalyse: Problem, Zielgruppe, User Stories, Anforderungen, MoSCoW, MVP-Scope, Prüfung auf Widersprüche | ✅ abgeschlossen |
+| Architektur | Architekturvarianten, Technologieauswahl, C4-Diagramme, Datenmodell, API-Design, ADRs, Hosting-Vergleich | 📝 Vorschlag, Team-Review offen |
 | Phase 2 | Continuous Deployment: GitHub → CD → Vercel | ⏳ geplant |
 
 ## Dokumentation
@@ -55,7 +56,17 @@ Details siehe [docs/requirements.md](docs/requirements.md).
 |---|---|
 | [README.md](README.md) | Projektüberblick (dieses Dokument) |
 | [docs/requirements.md](docs/requirements.md) | User Stories, funktionale und nichtfunktionale Anforderungen, Priorisierung, MVP, Widersprüche und Unklarheiten |
-| [docs/ai-usage.md](docs/ai-usage.md) | Einsatz von AI in der Anforderungsanalyse und Reflexion |
+| [docs/architecture.md](docs/architecture.md) | Architekturvarianten, gewählte Architektur, Technologien, C4-Diagramme, Datenmodell, API-Design, kritische Prüfung |
+| [docs/adr/](docs/adr/README.md) | Architecture Decision Records (ADR-0001 bis ADR-0005) |
+| [docs/hosting.md](docs/hosting.md) | Vergleich der Hosting-Möglichkeiten (Kosten, Aufwand, DSGVO) |
+| [docs/diagrams/](docs/diagrams/) | Architekturdiagramme (Mermaid-Quellen und SVG) |
+| [docs/ai-usage.md](docs/ai-usage.md) | Einsatz von AI in Anforderungsanalyse und Architektur, Reflexion |
+
+## Architektur auf einen Blick
+
+![C4 Container-Diagramm](docs/diagrams/c4-container.svg)
+
+Next.js-Anwendung (UI + REST-API) auf Vercel, PostgreSQL bei Neon (Frankfurt), täglicher Cron-Job für Erinnerungen. Details siehe [docs/architecture.md](docs/architecture.md).
 
 ## Team
 
