@@ -48,7 +48,7 @@ Erinnerungen, Anpinnen und Kategorien folgen nach dem MVP. Details siehe [docs/m
 | Phase | Inhalt | Status |
 |---|---|---|
 | Phase 1 | Anforderungsanalyse: Problem, Zielgruppe, User Stories, Anforderungen, MoSCoW, MVP-Scope, Prüfung auf Widersprüche | ✅ abgeschlossen |
-| Phase 2 | Architektur & Design: Architekturvarianten, Technologiewahl, Architekturdiagramm, Datenmodell, API-Design, ADRs, Hosting-Vergleich | 📝 Kernentscheidungen vom Team bestätigt; offen: Review von ADR-003 und Reflexion in ai-usage.md |
+| Phase 2 | Architektur & Design: Architekturvarianten, Technologiewahl, Architekturdiagramm, Datenmodell, API-Design, ADRs, Hosting-Vergleich | ✅ abgeschlossen |
 
 ## Dokumentation
 

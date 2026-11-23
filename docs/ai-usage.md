@@ -176,18 +176,18 @@ Zu jedem Punkt hat die AI Optionen mit einer Empfehlung genannt. Das Team hat di
 | Vergleichstabelle bevorzugte Variante A, REST-Begründung war zirkulär bzw. hypothetisch („native App“) | Tabelle neu bewertet, Gewichtung erklärt; REST mit Testbarkeit begründet |
 | Vorschau-Deployments und Tests hätten die Produktivdatenbank genutzt | Zweites Supabase-Projekt für Entwicklung (hosting.md) |
 
-**Team-Entscheidungen dazu:** Konto löschen nur nach erneuter Passworteingabe (#18); ADR-003 bleibt „vorgeschlagen“, bis das Team es geprüft hat.
+**Team-Entscheidungen dazu:** Konto löschen nur nach erneuter Passworteingabe (#18); ADR-003 blieb zunächst „vorgeschlagen“ und wurde danach vom Team angenommen.
 
 **Nicht übernommen:** Ein Prüfer meinte, „Vercel Hobby nur nicht-kommerziell“ stehe in Vercels Fair-Use-Richtlinien. Die Recherche hatte genau diese Seite ohne Treffer durchsucht. Da sich die Aussagen widersprechen, bleibt die Angabe in hosting.md als „nur aus Drittquellen“ gekennzeichnet.
 
 # Reflexion Phase 2
 
-> **Entwurf** – von Claude Code auf Basis des Projektverlaufs formuliert. Vom Team zu prüfen, in eigenen Worten anzupassen und an den markierten Stellen [Team: …] zu ergänzen.
+> Von Claude Code auf Basis des Projektverlaufs und von Stichworten des Teams formuliert.
 
 ### Was gut funktioniert hat
 
-- **Alternativen schnell sichtbar:** Die AI hat in kurzer Zeit drei ernsthafte Varianten mit Diagrammen und einer Bewertung nach unseren Anforderungen geliefert. Dadurch konnten wir über die Entscheidung diskutieren statt über die Form.
-- **Risiken früh erkannt:** Das Zeitzonenproblem bei der Priorisierung (R1) hätten wir vermutlich erst beim Testen bemerkt. Es hat zu einer eigenen Architekturentscheidung (ADR-003) geführt.
+- **Alternativen schnell sichtbar:** Die AI hat in kurzer Zeit drei ernsthafte Varianten mit Diagrammen und einer Bewertung nach unseren Anforderungen geliefert. Das war eine gute Grundlage für unsere Entscheidung.
+- **Risiken früh erkannt:** Die AI hat das Zeitzonenproblem bei der Priorisierung (R1) schon im Entwurf aufgezeigt. Es hat zu einer eigenen Architekturentscheidung (ADR-003) geführt.
 - **Recherche mit Quellen:** Auf die Nachfrage „Warum recherchieren, ist doch kostenlos?“ hat die AI begründet, warum Gratis-Tarife Bedingungen haben, die unsere Anforderungen betreffen. Die Recherche hat tatsächlich Wichtiges gefunden (Standard-Region USA, DPA erst ab Vercel Pro, E-Mail-Versand nur an Team-Adressen).
 - **Mehrere unabhängige Prüfer:** Das Review mit drei AI-Prüfern hat echte technische Fehler gefunden, die in den Entwürfen plausibel aussahen.
 
@@ -195,9 +195,9 @@ Zu jedem Punkt hat die AI Optionen mit einer Empfehlung genannt. Das Team hat di
 
 - **Falsche Annahmen über uns:** Die AI hat angenommen, wir kennen Supabase nicht, und darauf eine Empfehlung gebaut. Erst unser Einwand hat zu einer besseren Lösung geführt.
 - **Plausibel, aber falsch:** Mehrere Aussagen klangen überzeugend und waren falsch – „eingebauter E-Mail-Versand genügt für die Demo“, „HTTP-only-Cookies“, „nur E-Mail und Passwort-Hash gespeichert“. Ohne Recherche und Review wären sie in der Abgabe gelandet.
-- **Widersprüche zwischen Dokumenten:** Die AI hat Variante C mit einem Argument (Manipulierbarkeit) verworfen, das sie an anderer Stelle selbst entkräftet hatte. Das ist erst durch unsere Nachfrage aufgefallen.
-- **Viel Text, viel Detail:** Die AI erzeugt schnell umfangreiche Dokumente. Die Gefahr ist, dass wir Dinge abgeben, die wir nicht selbst erklären können (z. B. RLS mit JWT, CSRF, DPA vs. Data Privacy Framework).
-- **AI prüft AI:** Auch das Council besteht aus AI-Prüfern. Ihre Funde mussten wir ebenfalls bewerten – in einem Punkt (Vercel nicht-kommerziell) widersprachen sie der Recherche.
+- **Widersprüche zwischen Dokumenten:** Die AI hat Variante C mit einem Argument (Manipulierbarkeit) verworfen, das sie an anderer Stelle selbst entkräftet hatte. Aufgefallen ist das erst, als wir zu Variante C nachgefragt haben und die AI ihre Begründung noch einmal geprüft hat.
+- **Viel Text, viel Detail:** Die AI erzeugt schnell umfangreiche Dokumente. Es kostet Zeit, alles so weit zu verstehen, dass man es selbst erklären kann (z. B. RLS, CSRF, DPA).
+- **AI prüft AI:** Auch das Council besteht aus AI-Prüfern. Auch die Bewertung ihrer Funde hat großteils die AI vorgenommen; wir haben die zwei offenen Punkte entschieden (Passwort beim Konto löschen, Status von ADR-003). In einem Punkt (Vercel nicht-kommerziell) widersprach ein Prüfer der Recherche.
 
 ### Was wir gelernt haben
 
@@ -209,6 +209,10 @@ Zu jedem Punkt hat die AI Optionen mit einer Empfehlung genannt. Das Team hat di
 
 ### Unsere eigene Einschätzung
 
-- [Team: Wo wart ihr mit einer AI-Empfehlung nicht einverstanden oder unsicher – außer Supabase und Variante C?]
-- [Team: Welche Teile der Architektur könnt ihr gut erklären, welche müsst ihr euch noch erarbeiten?]
-- [Team: Was würdet ihr in Phase 3 beim AI-Einsatz anders machen?]
+**Wo wir unsicher waren:** Beim Monolithen waren wir uns am Anfang nicht sicher. Ein getrenntes Backend (Variante B) trennt die Zuständigkeiten klarer, bedeutet für uns aber zwei Anwendungen, zwei Deployments und mehr Abstimmung. Für eine App mit einer Tabelle und einem kleinen Team wäre das unnötig kompliziert. Wir sind deshalb zum Schluss gekommen, dass der Monolith für dieses Projekt am besten passt. Die Aufteilung in Module war uns dabei wichtig, damit der Code trotzdem übersichtlich bleibt und die Priorisierung für sich getestet werden kann.
+
+**Wo wir uns sicher waren:** Der Tech-Stack war für uns ein klarer Sieger. Next.js bringt Oberfläche und API in einem Projekt mit, Vercel übernimmt das Deployment, und wir haben mit beiden schon gearbeitet. So können wir uns auf die eigentliche Funktion konzentrieren, statt uns zuerst in neue Werkzeuge einzuarbeiten. Uns ist bewusst, dass diese Vorliebe unsere Entscheidung beeinflusst hat. Deshalb war der Vergleich mit anderen Varianten und Hosting-Anbietern sinnvoll, auch wenn er unsere Wahl am Ende bestätigt hat.
+
+**Was wir gut erklären können:** Den Aufbau der App (Browser, Next.js-App, Supabase), die Priorisierungsregel und die Gründe für unsere Entscheidungen. Bei den Sicherheitsthemen kennen wir die Idee dahinter: RLS sorgt dafür, dass die Datenbank jedem Nutzer nur seine eigenen Aufgaben zeigt, und der CSRF-Schutz verhindert, dass fremde Websites im Namen eines angemeldeten Nutzers Anfragen auslösen. Die technischen Details wollen wir uns bei der Umsetzung genauer ansehen.
+
+**Was wir in Phase 3 anders machen:** Wir wollen der AI gezielt verschiedene Rollen geben, zum Beispiel Entwickler, Tester und Security-Reviewer. Das Council hat gezeigt, dass getrennte Blickwinkel Fehler finden, die in einem einzelnen Gespräch nicht auffallen. Davon erwarten wir uns genauere Antworten und bessere Qualität. Außerdem wollen wir unseren Kontext gleich am Anfang mitgeben und Code erst übernehmen, wenn wir ihn selbst verstehen.

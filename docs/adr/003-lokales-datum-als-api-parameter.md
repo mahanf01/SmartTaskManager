@@ -1,6 +1,6 @@
 # ADR-003: Lokales Datum des Nutzers als API-Parameter
 
-- **Status:** vorgeschlagen (Review durch das Team ausstehend)
+- **Status:** angenommen
 - **Datum:** 23.11.2026
 
 ## Kontext

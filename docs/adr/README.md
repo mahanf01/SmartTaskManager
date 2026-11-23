@@ -6,7 +6,7 @@ Wichtige Architekturentscheidungen werden hier als kurze Records festgehalten. E
 |---|---|---|---|
 | [001](001-modularer-monolith-nextjs.md) | Modularer Monolith mit Next.js | angenommen | 23.11.2026 |
 | [002](002-supabase-fuer-datenbank-und-auth.md) | Supabase für Datenbank und Auth | angenommen | 23.11.2026 |
-| [003](003-lokales-datum-als-api-parameter.md) | Lokales Datum des Nutzers als API-Parameter | vorgeschlagen (Review durch das Team ausstehend) | 23.11.2026 |
+| [003](003-lokales-datum-als-api-parameter.md) | Lokales Datum des Nutzers als API-Parameter | angenommen | 23.11.2026 |
 | [004](004-hosting-vercel-und-supabase-eu.md) | Hosting auf Vercel Hobby und Supabase Free in Frankfurt | angenommen | 23.11.2026 |
 
 ## Vorlage
