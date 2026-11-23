@@ -12,8 +12,8 @@ Viele Menschen haben zu viele Aufgaben und wissen nicht, womit sie anfangen soll
 
 - Aufgaben mit **Frist** und **Wichtigkeit (1–10)** anlegen
 - Die App **sortiert automatisch**: je näher die Frist und je höher die Wichtigkeit, desto weiter oben steht die Aufgabe
-- Nutzer können die Priorität **manuell überschreiben**, wenn sie mit der Sortierung nicht einverstanden sind
-- **Erinnerungen** vor Ablauf der Frist
+- Nutzer können Aufgaben **anpinnen**, wenn sie mit der Sortierung nicht einverstanden sind
+- **Erinnerungen** in der App vor Ablauf der Frist
 
 ## Zielgruppe
 
@@ -39,34 +39,30 @@ Das MVP enthält nur die Must-Anforderungen:
 - Frist und Wichtigkeit angeben
 - Automatische Sortierung
 - Aufgaben abhaken
+- Konto mit allen Daten löschen (DSGVO)
 
-Details siehe [docs/requirements.md](docs/requirements.md).
+Erinnerungen, Anpinnen und Kategorien folgen nach dem MVP. Details siehe [docs/mvp.md](docs/mvp.md).
 
 ## Projektphasen
 
 | Phase | Inhalt | Status |
 |---|---|---|
 | Phase 1 | Anforderungsanalyse: Problem, Zielgruppe, User Stories, Anforderungen, MoSCoW, MVP-Scope, Prüfung auf Widersprüche | ✅ abgeschlossen |
-| Architektur | Architekturvarianten, Technologieauswahl, C4-Diagramme, Datenmodell, API-Design, ADRs, Hosting-Vergleich | 📝 Vorschlag, Team-Review offen |
-| Phase 2 | Continuous Deployment: GitHub → CD → Vercel | ⏳ geplant |
+| Phase 2 | Architektur & Design: Architekturvarianten, Technologiewahl, Architekturdiagramm, Datenmodell, API-Design, ADRs, Hosting-Vergleich | ✅ abgeschlossen |
 
 ## Dokumentation
 
 | Dokument | Inhalt |
 |---|---|
 | [README.md](README.md) | Projektüberblick (dieses Dokument) |
-| [docs/requirements.md](docs/requirements.md) | User Stories, funktionale und nichtfunktionale Anforderungen, Priorisierung, MVP, Widersprüche und Unklarheiten |
-| [docs/architecture.md](docs/architecture.md) | Architekturvarianten, gewählte Architektur, Technologien, C4-Diagramme, Datenmodell, API-Design, kritische Prüfung |
-| [docs/adr/](docs/adr/README.md) | Architecture Decision Records (ADR-0001 bis ADR-0005) |
-| [docs/hosting.md](docs/hosting.md) | Vergleich der Hosting-Möglichkeiten (Kosten, Aufwand, DSGVO) |
-| [docs/diagrams/](docs/diagrams/) | Architekturdiagramme (Mermaid-Quellen und SVG) |
-| [docs/ai-usage.md](docs/ai-usage.md) | Einsatz von AI in Anforderungsanalyse und Architektur, Reflexion |
-
-## Architektur auf einen Blick
-
-![C4 Container-Diagramm](docs/diagrams/c4-container.svg)
-
-Next.js-Anwendung (UI + REST-API) auf Vercel, PostgreSQL bei Neon (Frankfurt), täglicher Cron-Job für Erinnerungen. Details siehe [docs/architecture.md](docs/architecture.md).
+| [docs/requirements.md](docs/requirements.md) | User Stories, funktionale und nichtfunktionale Anforderungen, Priorisierung, Priorisierungsregel, Widersprüche und Unklarheiten |
+| [docs/mvp.md](docs/mvp.md) | MVP-Scope: Demo-Anwendungsfall, enthaltene und ausgeschlossene Funktionen |
+| [docs/architecture.md](docs/architecture.md) | Architekturvarianten, Entscheidung, Technologien, C4-Diagramme, Risiken |
+| [docs/data-model.md](docs/data-model.md) | Datenmodell: ER-Diagramm, Tabellen, SQL-Migration |
+| [docs/api.md](docs/api.md) | API-Design: REST-Endpunkte, Datenformate, Fehler |
+| [docs/hosting.md](docs/hosting.md) | Hosting-Vergleich: Anbieter, Kosten, Gratis-Limits, Entscheidung |
+| [docs/adr/](docs/adr/) | Architecture Decision Records |
+| [docs/ai-usage.md](docs/ai-usage.md) | Einsatz von AI in Phase 1 und 2 und Reflexion |
 
 ## Team
 

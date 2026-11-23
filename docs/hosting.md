@@ -1,163 +1,126 @@
-# Hosting-Vergleich – SmartTaskManager
+# Hosting – SmartTaskManager
 
-Dieses Dokument vergleicht Hosting-Möglichkeiten für die gewählte Architektur (Next.js + PostgreSQL + täglicher Job, siehe [architecture.md](architecture.md)).
+> Stand: 23.11.2026. Alle Preise und Limits wurden an diesem Tag recherchiert (Quellen am Ende). Preise ändern sich häufig – vor einer Entscheidung für einen kostenpflichtigen Tarif erneut prüfen.
 
-> **Stand der Preise: 9. November 2026.** Preise in USD bzw. EUR, ohne Mehrwertsteuer. Anbieter ändern Preise und Gratis-Limits oft – vor einer Entscheidung auf den Anbieterseiten nachprüfen (Quellen am Ende).
+## 1. Anforderungen an das Hosting
 
-## 1. Was wir brauchen
-
-| Bedarf | Warum |
+| Kriterium | Herkunft |
 |---|---|
-| Next.js-App (UI + API) | Kern der Anwendung |
-| PostgreSQL-Datenbank | Nutzer und Aufgaben ([ADR-0002](adr/0002-postgresql-mit-prisma.md)) |
-| Täglicher Job | Erinnerungen ([ADR-0005](adr/0005-erinnerungen-per-cron.md)) |
-| Deployment aus GitHub | Phase 2: Continuous Deployment |
-| EU-Region | DSGVO (NF5), kurze Wege für Nutzer in Österreich (NF2) |
-| Kein Einschlafen / Löschen bei Inaktivität | Uni-Projekte werden oft wochenlang nicht genutzt |
+| Next.js mit Server-Funktionen (Route Handlers) muss laufen | Architektur Variante A ([architecture.md](architecture.md)) |
+| Datenbank in der EU | NF5 |
+| Server in derselben Region wie die Datenbank, keine langen Kaltstarts | NF2 (Liste lädt in unter 2 Sekunden) |
+| Betrieb während des Semesters kostenlos | Rahmenbedingung |
+| Automatisches Deployment aus GitHub | Team-Wunsch |
+| Vertrag zur Auftragsverarbeitung (DPA/AVV) verfügbar | NF5 (für späteren Echtbetrieb) |
 
-## 2. Vergleichskriterien
+## 2. App-Hosting im Vergleich
 
-- **Kosten** – im Uni-Projekt (wenige Nutzer) und als kleines echtes Produkt (ca. 1.000 Nutzer)
-- **Aufwand** – Einrichtung und laufender Betrieb (Updates, Backups)
-- **CD aus GitHub** – automatisches Deployment bei jedem Push
-- **DSGVO** – EU-Region, Firmensitz, Auftragsverarbeitungsvertrag (DPA)
-- **Einschränkungen der Gratis-Stufe** – Schlafen, Löschen, kommerzielle Nutzung
-- **Anbieterbindung**
+| | Vercel Hobby | Netlify Free | Render Free | Railway | Hetzner Cloud (eigener Server) |
+|---|---|---|---|---|---|
+| **Preis** | 0 $ | 0 $ (300 Credits/Monat) | 0 $ | kein dauerhafter Gratis-Tarif, nur Testguthaben ¹ | ab 6,49 €/Monat zzgl. USt. (CPX02, 1 vCPU, 1 GB RAM) |
+| **Nächster Tarif** | Pro: 20 $ pro Entwickler-Platz/Monat | Personal: 9 $/Monat | Starter: ca. 7 $/Monat ¹ | Hobby: 5 $/Monat ¹ | – |
+| **Next.js-Server** | nativ (Hersteller von Next.js) | ja ² | ja (Node-Server) | ja (Node-Server) | ja, selbst einrichten |
+| **EU-Region** | ja, eine Region wählbar, z. B. Frankfurt (`fra1`); Standard ist Washington (`iad1`) | auf der Preisseite nicht angegeben | Frankfurt verfügbar | nicht recherchiert | Falkenstein, Nürnberg |
+| **Kaltstart / Schlafmodus** | Serverless, kurze Kaltstarts | Serverless | schläft nach 15 min ohne Anfragen, Aufwachen dauert ca. 1 Minute | – | läuft dauerhaft |
+| **Deployment aus GitHub** | automatisch, mit Vorschau-Deployments | automatisch | automatisch | automatisch | selbst einrichten (z. B. GitHub Actions) |
+| **Betriebsaufwand** | sehr gering | gering | gering | gering | hoch: Betriebssystem-Updates, TLS, Firewall, Überwachung |
+| **DPA** | nur für Pro und Enterprise | vorhanden, Teil der Nutzungsbedingungen; ob für den Gratis-Tarif, nicht eindeutig ¹ | nicht geprüft (scheidet aus anderen Gründen aus) | nicht geprüft (scheidet aus anderen Gründen aus) | Auftragsverarbeitungsvertrag (AVV) im Kundenkonto abschließbar, nicht automatisch; Daten bei Standort Deutschland in der EU |
+| **Bei Überschreiten der Limits** | Funktion pausiert bis zu 30 Tage, keine Kosten | Projekt pausiert ¹ | Dienste ruhen bis Monatsende | – | – |
 
-## 3. Optionen im Überblick
+¹ Nur aus Drittquellen, auf der offiziellen Seite nicht gefunden.
+² Nicht auf der Preisseite angegeben; Netlify unterstützt Next.js über einen eigenen Adapter.
 
-### Option 1 – Vercel + Neon (empfohlen für das Projekt)
+**Bewertung:**
 
-App und Cron auf **Vercel**, Datenbank bei **Neon** (Region Frankfurt).
+- **Render Free** scheidet aus: Ein Kaltstart von etwa einer Minute verletzt NF2 deutlich.
+- **Railway** scheidet aus: kein dauerhaft kostenloser Tarif.
+- **Hetzner** ist ab etwa 6,50 € im Monat die günstigste kostenpflichtige Option mit Serverstandort in Deutschland. Server, Updates und Deployment müssten wir aber selbst betreiben – Zeit, die im Semester für die eigentliche App fehlt.
+- **Netlify Free** wäre möglich, die EU-Region ist aber auf der Preisseite nicht belegt und das Team hat keine Erfahrung damit.
+- **Vercel Hobby** erfüllt alle Kriterien für das Semester: kostenlos, Next.js nativ, Frankfurt als Region wählbar, kein Betriebsaufwand, Team-Erfahrung.
 
-| | Gratis | Bezahlt |
+## 3. Datenbank und Auth
+
+Supabase wurde bereits als Dienst für Datenbank und Auth gewählt ([ADR-002](adr/002-supabase-fuer-datenbank-und-auth.md)). Zu klären ist hier der Tarif.
+
+| | Supabase Free | Supabase Pro |
 |---|---|---|
-| **Vercel** | Hobby: 0 $. U. a. 1 Mio. Funktionsaufrufe, 4 CPU-Stunden, 100 GB Datenübertragung pro Monat. **Nur nicht-kommerzielle Nutzung.** | Pro: 20 $ pro Entwickler-Platz und Monat, plus Nutzung über dem enthaltenen Guthaben |
-| **Neon** | Free: 0 $. 100 CU-Stunden Rechenzeit pro Projekt/Monat, 1 GB Speicher pro Projekt | Launch: nutzungsbasiert ohne Grundgebühr (0,106 $/CU-Stunde, 0,35 $/GB-Monat); kleine DB laut Anbieter ca. 15 $/Monat |
+| **Preis** | 0 $ | ab 25 $/Monat (enthält 10 $ Rechenguthaben für eine Micro-Instanz) |
+| **Aktive Projekte** | 2 | je Projekt zusätzliche Rechenkosten |
+| **Datenbankgröße** | 500 MB | 8 GB pro Projekt |
+| **Nutzer (Auth)** | 50.000 aktive Nutzer pro Monat | 100.000 |
+| **Datenübertragung** | 5 GB (+ 5 GB aus dem Cache) | 250 GB |
+| **Backups** | keine | täglich, 7 Tage aufbewahrt |
+| **Pausieren** | nach 1 Woche Inaktivität | nie |
+| **Region** | Frankfurt (`eu-central-1`) verfügbar; Region ist später nicht änderbar | wie Free |
+| **E-Mail-Versand (eingebaut)** | 2 E-Mails pro Stunde, **nur an Adressen von Team-Mitgliedern**, nicht für den Produktivbetrieb gedacht | wie Free; eigener SMTP-Dienst empfohlen |
+| **DPA** | vorhanden, Tarif nicht genannt; Vertragspartner Supabase Pte. Ltd. (Singapur) mit EU-Standardvertragsklauseln | wie Free |
 
-- ➕ Kein Server zu betreuen, CD aus GitHub ist eingebaut, Preview-Deployments pro Pull Request
-- ➕ Neon schläft bei Inaktivität, löscht aber die Datenbank nicht
-- ➖ Vercel Hobby verbietet kommerzielle Nutzung → für ein echtes Produkt Pro nötig
-- ➖ Beide Anbieter sind US-Firmen (EU-Region wählbar, aber DPA nötig)
-- ➖ Kaltstart der Gratis-DB nach Inaktivität (erste Anfrage langsamer)
+Alternative mit Ablaufdatum: Render Postgres Free wird nach 30 Tagen gelöscht – für ein Semester ungeeignet.
 
-### Option 2 – Vercel + Supabase
+Reine Datenbank-Anbieter (z. B. Neon) wurden nicht im Detail verglichen: Sie bringen kein Login mit, wir bräuchten also zusätzlich eine Auth-Lösung – genau das wollte ADR-002 vermeiden.
 
-App auf Vercel, PostgreSQL bei **Supabase** (Region Frankfurt).
+## 4. Entscheidung
 
-| | Gratis | Bezahlt |
+**Vercel Hobby (Region Frankfurt `fra1`) + Supabase Free (Region Frankfurt `eu-central-1`). Kosten im Semester: 0 €.**
+
+Server und Datenbank liegen in derselben Region (Frankfurt). Das hält den Weg zwischen App und Datenbank kurz (NF2) und die gespeicherten Daten in der EU (NF5).
+
+### Reicht das Gratis-Kontingent?
+
+| Limit | Kontingent | Erwarteter Bedarf im Semester |
 |---|---|---|
-| **Supabase** | Free: 0 $. 500 MB Datenbank, 50.000 aktive Nutzer, max. 2 aktive Projekte. **Projekt wird nach 1 Woche Inaktivität pausiert.** | Pro: ab 25 $/Monat |
+| Datenbank | 500 MB | Eine Aufgabe belegt grob unter 1 KB (inkl. Index). Selbst 100.000 Aufgaben brauchen weniger als 100 MB. |
+| Nutzer | 50.000 pro Monat | Team und Testpersonen: unter 50 |
+| Funktionsaufrufe (Vercel) | 1 Mio. pro Monat | Wenige tausend |
+| Datenübertragung (Vercel) | 100 GB pro Monat | Deutlich unter 1 GB |
 
-- ➕ Zusätzlich Auth, Speicher und Dashboard dabei (bräuchten wir aber laut [ADR-0004](adr/0004-auth-mit-authjs.md) nicht)
-- ➖ Pausieren nach 1 Woche ist für ein Uni-Projekt störend (z. B. vor der Präsentation)
-- ➖ Pro-Plan teurer als Neon für unseren kleinen Bedarf
+Die Limits sind für Entwicklung und Demo um Größenordnungen ausreichend.
 
-### Option 3 – Render (alles bei einem Anbieter)
+## 5. Umgebungen
 
-Next.js als Web-Service, PostgreSQL und Cron-Job bei **Render** (Region Frankfurt verfügbar).
+Für Semester und Demo reicht **ein** Supabase-Projekt (Frankfurt). Es wird von der Produktion (Deployment von `main`), den Vorschau-Deployments und der lokalen Entwicklung gemeinsam genutzt und enthält nur Testdaten. Das Schema liegt als Migration im Repository.
 
-| | Gratis | Bezahlt |
-|---|---|---|
-| **Web-Service** | 0 $, schläft nach ca. 15 Min. ohne Anfragen ein (langer Kaltstart) | ab 7 $/Monat (512 MB RAM) |
-| **PostgreSQL** | 0 $ (256 MB RAM), Gratis-Datenbanken laufen nach begrenzter Zeit ab | ab 6 $/Monat |
+**Optional:** Supabase Free erlaubt zwei aktive Projekte. Ein zweites Projekt für Entwicklung und Vorschau wird sinnvoll, wenn E2E-Tests Konten anlegen und löschen, und ist spätestens vor echten Nutzern nötig. Die Trennung erfolgt dann über Umgebungsvariablen, die in Vercel getrennt für „Production“ und „Preview“ gesetzt werden.
 
-- ➕ Alles in einem Dashboard, Docker möglich, CD aus GitHub
-- ➖ Gratis-Stufe für eine Live-Demo kaum brauchbar (Einschlafen, DB läuft ab)
-- ➖ Realistisch ca. 13 $/Monat + Cron-Job
+## 6. Einschränkungen und Gegenmaßnahmen
 
-### Option 4 – Railway
-
-Next.js, PostgreSQL und Cron als Dienste bei **Railway**.
-
-| | Kosten |
+| Einschränkung | Gegenmaßnahme |
 |---|---|
-| **Hobby** | 5 $/Monat, darin 5 $ Nutzung enthalten; darüber wird zusätzlich abgerechnet |
-| **Test** | Einmalig 5 $ Guthaben, danach Free-Plan mit 1 $ Guthaben pro Monat |
+| Vercel führt Funktionen standardmäßig in Washington (`iad1`) aus | Region in `vercel.json` auf `["fra1"]` setzen |
+| Supabase Free pausiert nach 1 Woche Inaktivität | Während des Semesters wird regelmäßig entwickelt und getestet. Einen Tag vor der Abnahme prüfen, ob das Supabase-Projekt aktiv ist. |
+| Supabase Free hat keine Backups | Vor der Abnahme und nach Schema-Änderungen einen Export mit `supabase db dump` erstellen. Das Schema liegt ohnehin als Migration im Repository. |
+| Eingebauter E-Mail-Versand nur an Team-Adressen, 2 pro Stunde | MVP braucht keine E-Mails (Bestätigung ist aus). Für F10 (Passwort zurücksetzen) ist ein eigener SMTP-Dienst nötig – Auswahl und Kosten werden bei der Umsetzung von F10 geprüft. |
+| Vercel bietet den DPA nur für Pro und Enterprise | Im Semester werden nur Testdaten von Team und Testpersonen verarbeitet. Für einen echten Betrieb mit fremden Nutzerdaten wäre Vercel Pro (oder ein anderer Hoster mit DPA) nötig. Vercel ist unter dem EU-U.S. Data Privacy Framework zertifiziert (alle Tarife). |
+| Vercel Hobby ist laut Drittquellen nur für private, nicht-kommerzielle Nutzung erlaubt (Verweis auf die Nutzungsbedingungen; auf den gelesenen offiziellen Seiten nicht gefunden) | Für ein Semesterprojekt unkritisch. |
 
-- ➕ Sehr einfache Einrichtung, alles an einem Ort, CD aus GitHub
-- ➖ Keine dauerhafte Gratis-Stufe für eine App mit Datenbank
-- ➖ Kosten schwanken mit der Nutzung
+## 7. Kosten bei Echtbetrieb
 
-### Option 5 – Eigener Server in der EU (Hetzner + Docker)
+Falls die App nach dem Semester mit echten Nutzern betrieben würde:
 
-Ein kleiner virtueller Server bei **Hetzner** (Deutschland/Finnland). Next.js und PostgreSQL laufen als Docker-Container, z. B. verwaltet mit Coolify. Cron über den Server.
-
-| | Kosten |
+| Posten | Kosten pro Monat |
 |---|---|
-| **Kleinster Cloud-Server** (z. B. CX22: 2 vCPU, 4 GB RAM) | ca. 4–6 € pro Monat (Preise wurden 2026 angepasst) |
-| **Backups** | ca. +20 % des Serverpreises |
+| Vercel Pro (1 Entwickler-Platz, enthält DPA) | 20 $ |
+| Supabase Pro (keine Pausen, tägliche Backups) | ab 25 $ |
+| Eigener SMTP-Dienst für Auth-E-Mails | abhängig vom Anbieter, nicht recherchiert |
+| **Summe** | **ab ca. 45 $** |
 
-- ➕ Am günstigsten für ein echtes Produkt, feste Kosten
-- ➕ Rein europäischer Anbieter, Daten nur in der EU → einfachste DSGVO-Lage
-- ➕ Keine Anbieterbindung, kein Einschlafen
-- ➖ **Viel Eigenaufwand:** Updates, Sicherheit, Backups, SSL, Monitoring selbst erledigen
-- ➖ CD muss selbst eingerichtet werden (GitHub Actions oder Coolify)
-- ➖ Ein einzelner Server = keine Ausfallsicherheit
-
-### Option 6 – Große Cloud-Anbieter (AWS, Azure, Google Cloud)
-
-- ➕ Alles möglich, sehr gut skalierbar, EU-Regionen
-- ➕ Teilweise Guthaben für Studierende
-- ➖ Für ein kleines MVP viel zu komplex (Netzwerk, Rechte, Kostenkontrolle)
-- ➖ Kosten schwer vorherzusagen; Gefahr unerwarteter Rechnungen
-- → Für dieses Projekt **nicht** empfohlen
-
-## 4. Vergleichstabelle
-
-| Kriterium | 1 Vercel + Neon | 2 Vercel + Supabase | 3 Render | 4 Railway | 5 Hetzner (eigener Server) | 6 AWS/Azure/GCP |
-|---|---|---|---|---|---|---|
-| Kosten Uni-Projekt | **0 $** | 0 $ | 0 $ (mit Einschränkungen) | ca. 5 $ | ca. 5 € | unklar |
-| Kosten echtes Produkt (~1.000 Nutzer) | ca. 25–40 $ | ca. 45 $ | ca. 13–20 $ | ca. 5–15 $ | **ca. 5–10 €** | 20–60 $+ |
-| Einrichtung | sehr einfach | sehr einfach | einfach | sehr einfach | aufwendig | aufwendig |
-| Laufender Betrieb | kaum | kaum | wenig | wenig | **hoch** | mittel–hoch |
-| CD aus GitHub | ✅ eingebaut, Preview pro PR | ✅ | ✅ | ✅ | selbst einrichten | selbst einrichten |
-| EU-Region | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| EU-Firma (DSGVO einfacher) | ❌ (US) | ❌ (US) | ❌ (US) | ❌ (US) | ✅ | ❌ (US) |
-| Gratis-Stufe schläft / wird gelöscht | schläft (DB), wird nicht gelöscht | pausiert nach 1 Woche | schläft, DB läuft ab | – | – | – |
-| Kommerziell auf Gratis-Stufe | ❌ (Vercel Hobby) | ❌ | ✅ | – | – | – |
-| Anbieterbindung | mittel | mittel | gering | gering | **keine** | hoch |
-| Passt zu Phase 2 („→ Vercel“) | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
-
-Die Werte für „echtes Produkt“ sind grobe Schätzungen für eine kleine App mit einem Entwickler-Platz. Hinzu kommen ggf. E-Mail-Versand (Resend o. ä., für kleine Mengen gratis) und eine eigene Domain (ca. 10–20 € pro Jahr).
-
-## 5. Empfehlung
-
-### Für das Uni-Projekt: Option 1 – Vercel Hobby + Neon Free (Frankfurt)
-
-- **Kosten: 0 €**
-- passt direkt zu Phase 2 (GitHub → CD → Vercel)
-- Preview-Deployment für jeden Pull Request – praktisch für Code-Reviews im Team
-- Datenbank wird bei Inaktivität nicht gelöscht
-- Vercel-Funktionen und Neon-DB beide in Frankfurt → kurze Wege (NF2)
-
-### Wenn daraus ein echtes Produkt wird
-
-Zwei sinnvolle Wege:
-
-1. **Bequem:** Vercel Pro + Neon Launch – ca. 25–40 $/Monat, kein Betriebsaufwand. Auftragsverarbeitungsverträge mit allen Anbietern abschließen.
-2. **Günstig und DSGVO-freundlich:** Umzug auf einen eigenen Server bei Hetzner – ca. 5–10 €/Monat, aber Betrieb selbst übernehmen.
-
-Der Umzug ist möglich, weil die Architektur auf Standards setzt (Next.js als Docker-Container, PostgreSQL, Cron als normaler HTTP-Aufruf). Siehe [architecture.md, Kapitel 10, Punkt 8](architecture.md#10-kritische-prüfung-der-ai-generierten-architektur).
-
-## 6. DSGVO-Hinweise zum Hosting
-
-- Region **Frankfurt (EU)** bei allen Diensten wählen.
-- Bei US-Anbietern: **Auftragsverarbeitungsvertrag (DPA)** abschließen und prüfen, ob der Anbieter unter dem EU-US Data Privacy Framework zertifiziert ist.
-- Alle eingesetzten Dienste (Hosting, Datenbank, E-Mail) in der Datenschutzerklärung nennen.
-- Keine personenbezogenen Daten in Logs schreiben.
-- Backups und Löschfristen festlegen; beim Löschen des Kontos werden alle Aufgaben mitgelöscht.
-
-## 7. AI-Einsatz bei diesem Dokument
-
-Die AI hat die Optionen und Kriterien vorgeschlagen. Preise und Limits aus dem Wissen der AI können veraltet sein. Deshalb wurden sie per Websuche auf den Anbieterseiten nachgeprüft (Stand 9. November 2026). Dabei zeigte sich z. B., dass Gratis-Stufen sehr unterschiedliche Haken haben (Pausieren nach 1 Woche, Ablauf der Datenbank, Verbot kommerzieller Nutzung) – diese Punkte waren für die Empfehlung wichtiger als der reine Preis.
+Günstigere Alternative für die App: ein eigener Server bei Hetzner (ab 6,49 € zzgl. USt.) – dafür mit dem oben beschriebenen Betriebsaufwand.
 
 ## Quellen
 
-- [Vercel – Hobby Plan (Doku)](https://vercel.com/docs/plans/hobby)
-- [Neon – Pricing](https://neon.com/pricing)
-- [Supabase – Pricing](https://supabase.com/pricing)
-- [Render – Pricing](https://render.com/pricing)
-- [Railway Pricing 2026 (temps.sh)](https://temps.sh/blog/railway-pricing-2026)
-- [Hetzner Cloud Servers Pricing (cloudpricecheck)](https://cloudpricecheck-com.pages.dev/hetzner/cloud-servers-pricing)
-- [Hetzner: neue Cloud-Server-Pläne (DataCentreNews UK)](https://datacentrenews.uk/story/hetzner-unveils-new-cloud-server-plans-from-eur-3-79-per-month)
+Alle abgerufen am 23.11.2026.
+
+**Offizielle Seiten:**
+
+- Vercel: [Preise](https://vercel.com/pricing), [Hobby-Tarif](https://vercel.com/docs/plans/hobby), [Funktions-Regionen](https://vercel.com/docs/functions/configuring-functions/region), [Regionen-Liste](https://vercel.com/docs/regions), [Cron Jobs](https://vercel.com/docs/cron-jobs/usage-and-pricing), [Fair-Use-Richtlinien](https://vercel.com/docs/limits/fair-use-guidelines), [DPA](https://vercel.com/legal/dpa)
+- Supabase: [Preise](https://supabase.com/pricing), [Regionen](https://supabase.com/docs/guides/platform/regions), [SMTP](https://supabase.com/docs/guides/auth/auth-smtp), [Rate Limits](https://supabase.com/docs/guides/auth/rate-limits), [DPA](https://supabase.com/legal/dpa)
+- Netlify: [Preise](https://www.netlify.com/pricing/)
+- Render: [Preise](https://render.com/pricing), [Gratis-Tarif](https://render.com/docs/free)
+- Hetzner: [Cloud](https://www.hetzner.com/cloud/), [Datenschutz bei Hetzner (AVV)](https://docs.hetzner.com/de/general/company-and-policy/data-protection-at-hetzner/)
+
+**Drittquellen** (nur für Angaben mit ¹):
+
+- [Vercel Hobby: nicht-kommerzielle Nutzung (convika.com)](https://convika.com/compare/vercel-hobby-commercial-use/)
+- [Railway vs Render 2026 (dev.to)](https://dev.to/selfhost/railway-vs-render-pricing-reliability-the-2026-verdict-2fpp)
+- [Netlify Preisübersicht 2026 (toolchase.com)](https://toolchase.com/blog/netlify-pricing-guide/)
+- Netlify DPA: [GDPR-Seite](https://www.netlify.com/gdpr-ccpa/), [DPA (PDF)](https://www.netlify.com/pdf/netlify-dpa.pdf) – offizielle Seiten, aber ohne eindeutige Aussage zum Gratis-Tarif
