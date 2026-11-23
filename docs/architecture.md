@@ -161,90 +161,64 @@ Regel: Module greifen nur über ihre öffentliche Schnittstelle aufeinander zu; 
 | Datenbankzugriff | `supabase-js` serverseitig, mit der Session des Nutzers | Zugriffsregeln (RLS) greifen als zweite Schutzschicht; Erfahrung im Team; Zugriff über HTTP statt direkter DB-Verbindungen (entschärft R2) | Prisma, Drizzle (verbinden sich als DB-Besitzer und umgehen RLS) | entschieden |
 | Migrationen | Supabase CLI (SQL-Migrationsdateien im Repository) | Schema versioniert und reproduzierbar | Änderungen im Dashboard (nicht nachvollziehbar) | Empfehlung |
 | Validierung | Zod (Schemas für Request-Body und Parameter) | Eine Schema-Definition liefert Prüfung und TypeScript-Typen | manuelle Prüfungen | Empfehlung |
-| Tests | Vitest (Unit), Playwright (Ende-zu-Ende) | Unit-Tests für Priorisierungsregel; E2E für den Demo-Ablauf aus mvp.md | Jest, Cypress | Empfehlung |
+| Tests | Vitest (Unit); Playwright (Ende-zu-Ende) optional | Unit-Tests für Priorisierungsregel; E2E für den Demo-Ablauf aus mvp.md nur, wenn Zeit bleibt | Jest, Cypress | Empfehlung |
 | Hosting | Vercel Hobby (Region Frankfurt) + Supabase Free (Region Frankfurt) | Kostenlos, Next.js nativ, App und Datenbank in derselben EU-Region, automatisches Deployment aus GitHub | Netlify, Render, Railway, Hetzner – siehe [hosting.md](hosting.md) | entschieden ([ADR-004](adr/004-hosting-vercel-und-supabase-eu.md)) |
 
 ADRs: [001 Architekturstil](adr/001-modularer-monolith-nextjs.md), [002 Supabase](adr/002-supabase-fuer-datenbank-und-auth.md), [003 lokales Datum](adr/003-lokales-datum-als-api-parameter.md), [004 Hosting](adr/004-hosting-vercel-und-supabase-eu.md).
 
 ## 6. Architekturdiagramm (C4)
 
-Die Diagramme folgen dem [C4-Modell](https://c4model.com/): Kontext (Ebene 1), Container (Ebene 2) und Komponenten des Servers (Ebene 3).
+Die Diagramme folgen dem [C4-Modell](https://c4model.com/): Kontext (Ebene 1) und Container (Ebene 2). Ebene 3 (Komponenten) entfällt; die Module des Servers beschreibt die [Modulstruktur in Kapitel 4](#modulstruktur-vorschlag).
 
 ### Ebene 1 – Systemkontext
 
 ```mermaid
-flowchart TB
-  user["Nutzer<br/>[Person]<br/>Studierende, Berufstätige, Privatpersonen"]
-  stm["SmartTaskManager<br/>[Software-System]<br/>Aufgaben verwalten und automatisch priorisieren"]
-  supa["Supabase<br/>[Externes System, EU-Region]<br/>Login und Datenbank"]
-  smtp["SMTP-Dienst<br/>[Externes System, ab F10]<br/>verschickt Auth-E-Mails"]
-  mail["E-Mail-Postfach des Nutzers<br/>[Externes System]"]
+flowchart LR
+  user["Nutzer"]
+  stm["SmartTaskManager<br/>Aufgaben verwalten und priorisieren"]
+  supa["Supabase<br/>Login und Datenbank"]
 
-  user -->|"nutzt im Browser (HTTPS)"| stm
-  stm -->|"Konten verwalten, Daten speichern"| supa
-  supa -.->|"Link zum Zurücksetzen des Passworts (ab F10)"| smtp
-  smtp -.->|"E-Mail"| mail
-  mail -.->|"liest"| user
+  user -->|"nutzt im Browser"| stm
+  stm -->|"Login, Daten"| supa
 ```
 
 ### Ebene 2 – Container
 
-```mermaid
-flowchart TB
-  user["Nutzer<br/>[Person]"]
+![Architektur: Web-Oberfläche, Next.js-Server, Supabase](diagrams/architektur-container.png)
 
-  subgraph stm["SmartTaskManager"]
-    web["Web-Oberfläche<br/>[Container: React / Next.js, läuft im Browser]<br/>Liste, Formulare, Ansicht Erledigt"]
-    app["Next.js-Server<br/>[Container: Next.js auf Vercel, EU-Region]<br/>Seiten ausliefern, REST-API, Validierung, Priorisierung"]
-  end
-
-  auth["Supabase Auth<br/>[Container: verwaltet, EU]<br/>Konten, Passwort-Hashes, Sessions"]
-  db[("Supabase PostgreSQL<br/>[Container: verwaltet, EU]<br/>Tabelle tasks, RLS")]
-
-  user -->|"bedient"| web
-  app -->|"liefert Seiten und JavaScript aus"| web
-  web -->|"JSON über HTTPS, Session-Cookie"| app
-  app -->|"Auth-API über HTTPS"| auth
-  app -->|"supabase-js / PostgREST über HTTPS"| db
-```
-
-Der Browser spricht ausschließlich mit dem Next.js-Server, nie direkt mit Supabase (Abgrenzung zu Variante C).
-
-### Ebene 3 – Komponenten des Next.js-Servers
+<details>
+<summary>Mermaid-Quelltext</summary>
 
 ```mermaid
 flowchart LR
-  subgraph server["Next.js-Server"]
-    mw["Middleware<br/>Session-Token erneuern"]
-    routes["Route Handlers<br/>/api/auth/*, /api/tasks, /api/account<br/>Validierung (Zod)"]
-    authm["auth<br/>Session prüfen, Login, Registrierung"]
-    tasksm["tasks<br/>Aufgaben lesen und schreiben"]
-    prio["prioritization<br/>reine Funktion, ohne DB/UI"]
-    acc["account<br/>Konto löschen"]
+  user["Nutzer"]
+
+  subgraph stm["SmartTaskManager"]
+    web["Web-Oberfläche<br/>React, im Browser"]
+    app["Next.js-Server<br/>Vercel Frankfurt<br/>API, Validierung, Priorisierung"]
   end
 
-  sa["Supabase Auth"]
-  sdb[("Supabase PostgreSQL")]
+  auth["Supabase Auth<br/>Login, Frankfurt"]
+  db[("Supabase PostgreSQL<br/>Aufgaben, Frankfurt")]
 
-  mw -->|"vor jeder Anfrage"| routes
-  mw --> sa
-  routes --> authm
-  routes --> tasksm
-  routes --> prio
-  routes --> acc
-  authm --> sa
-  tasksm --> sdb
-  acc -->|"Admin-API mit eigenem Admin-Client"| sa
+  user -->|"bedient"| web
+  web -->|"HTTPS/JSON"| app
+  app -->|"Login"| auth
+  app -->|"Daten"| db
 ```
 
-Die Middleware erneuert vor jeder Anfrage abgelaufene Zugriffstoken und schreibt sie in die Cookies (Route Handlers und Seiten können das nicht zuverlässig selbst). Route Handlers ermitteln den Nutzer mit `getUser()`.
+</details>
 
-Das Modul `prioritization` hat keine Abhängigkeiten. Es bekommt Aufgaben und das Datum `today` und liefert die sortierte Liste – damit lässt sich die Regel aus requirements.md Kapitel 7 direkt als Unit-Test prüfen.
+Die PNG-Bilder in [diagrams/](diagrams/) sind aus dem Mermaid-Quelltext erzeugt; bei Änderungen am Diagramm müssen sie neu erzeugt werden.
 
 ## 7. Datenmodell und API
 
 - **Datenmodell:** [data-model.md](data-model.md) – Tabelle `tasks`, ER-Diagramm, SQL-Migration mit Zugriffsregeln
 - **API-Design:** [api.md](api.md) – REST-Endpunkte, Datenformate, Fehlerformat, Ablauf „Liste laden“
+
+**Ablauf „Offene Liste laden“** (Quelltext des Diagramms in [api.md](api.md#beispielablauf-offene-liste-laden)):
+
+![Sequenzdiagramm: offene Liste laden](diagrams/sequenz-liste-laden.png)
 
 ## 8. Risiken
 
@@ -258,8 +232,8 @@ Das Modul `prioritization` hat keine Abhängigkeiten. Es bekommt Aufgaben und da
 | R6 | **Service-Role-Key:** Das Löschen eines Kontos (F9) braucht den Admin-Schlüssel von Supabase, der alle Zugriffsregeln umgeht. | Vollzugriff auf alle Daten, falls der Schlüssel im Browser landet | Schlüssel nur als Server-Umgebungsvariable (nie mit `NEXT_PUBLIC_`-Präfix), nur im Modul `account` und nur über einen eigenen Admin-Client ohne Cookies verwenden (api.md). Hinweis: Neuere Supabase-Projekte nennen diesen Schlüssel ggf. „Secret Key“ statt „Service-Role-Key“. |
 | R7 | **Auth-E-Mails:** Supabase Auth verschickt standardmäßig Bestätigungs-E-Mails; der eingebaute Mailversand ist stark limitiert. | Registrierung bei der Demo blockiert | **Gelöst für das MVP:** E-Mail-Bestätigung ist aus (requirements.md #15). **Korrektur nach Recherche:** Der eingebaute Versand schafft nur 2 E-Mails pro Stunde und liefert **nur an Adressen von Team-Mitgliedern**. Für F10 (Passwort zurücksetzen) ist daher ein eigener SMTP-Dienst nötig. |
 | R8 | **Brute-Force beim Login:** Weil alle Login-Anfragen über den eigenen Server laufen, sieht Supabase nur die IP-Adressen von Vercel. Die Limits pro IP-Adresse des Auth-Dienstes wirken dann für alle Nutzer gemeinsam statt pro Angreifer. | Passwort-Raten wird nicht pro Angreifer gebremst; im schlimmsten Fall sperrt das Limit alle Nutzer | Im MVP mit Testkonten akzeptiert; die API meldet `429`. Vor einem Echtbetrieb eigenes Limit pro Client-IP (z. B. im Route Handler) ergänzen. |
-| R9 | **CSRF:** Session in Cookies – eine fremde Webseite könnte Anfragen im Namen des Nutzers auslösen, z. B. Konto löschen. | Ungewollte Änderungen | `SameSite=Lax`, JSON-Pflicht und `Origin`-Prüfung (api.md); Konto löschen zusätzlich nur mit Passwort. |
-| R10 | **Test- und Vorschaudaten:** Vorschau-Deployments und E2E-Tests (die u. a. Konten löschen) würden auf die Produktivdatenbank zugreifen. | Testdaten in Produktion, versehentlich gelöschte Konten | Zweites kostenloses Supabase-Projekt für Entwicklung und Vorschau ([hosting.md](hosting.md#5-umgebungen)). |
+| R9 | **CSRF:** Session in Cookies – eine fremde Webseite könnte Anfragen im Namen des Nutzers auslösen, z. B. Konto löschen. | Ungewollte Änderungen | `SameSite=Lax` und JSON-Pflicht (api.md); Konto löschen zusätzlich nur mit Passwort. |
+| R10 | **Test- und Vorschaudaten:** Vorschau-Deployments und E2E-Tests (die u. a. Konten löschen) nutzen dieselbe Datenbank wie die Demo. | Vermischte Testdaten, versehentlich gelöschte Demo-Konten | Im Semester nur Testdaten und Testkonten; vor der Abnahme Datenbank-Export. Optional ein zweites kostenloses Supabase-Projekt, spätestens vor echten Nutzern ([hosting.md](hosting.md#5-umgebungen)). |
 | R11 | **Auth-Protokolle:** Supabase speichert IP-Adressen in Protokollen, die beim Konto-Löschen nicht mitgelöscht werden. | „Alle Daten löschen“ nur für Konto und Aufgaben erfüllt (NF5) | Vor einem Echtbetrieb Aufbewahrung klären (requirements.md #17). |
 
 ## 9. Weitere Dokumente

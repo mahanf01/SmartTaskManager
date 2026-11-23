@@ -78,21 +78,16 @@ Die Limits sind für Entwicklung und Demo um Größenordnungen ausreichend.
 
 ## 5. Umgebungen
 
-Supabase Free erlaubt zwei aktive Projekte. Wir nutzen beide:
+Für Semester und Demo reicht **ein** Supabase-Projekt (Frankfurt). Es wird von der Produktion (Deployment von `main`), den Vorschau-Deployments und der lokalen Entwicklung gemeinsam genutzt und enthält nur Testdaten. Das Schema liegt als Migration im Repository.
 
-| Umgebung | App (Vercel) | Datenbank (Supabase) | Zweck |
-|---|---|---|---|
-| Produktion | Deployment von `main` | Projekt `smarttaskmanager-prod` (Frankfurt) | Demo und Abnahme |
-| Entwicklung und Vorschau | Vorschau-Deployments von Pull Requests, lokale Entwicklung | Projekt `smarttaskmanager-dev` (Frankfurt) | Entwicklung, E2E-Tests (die u. a. Konten löschen) |
-
-Die Zuordnung erfolgt über Umgebungsvariablen, die in Vercel getrennt für „Production“ und „Preview“ gesetzt werden. Das Schema kommt in beiden Projekten aus denselben Migrationsdateien. Optional kann lokal mit `supabase start` gearbeitet werden (benötigt Docker).
+**Optional:** Supabase Free erlaubt zwei aktive Projekte. Ein zweites Projekt für Entwicklung und Vorschau wird sinnvoll, wenn E2E-Tests Konten anlegen und löschen, und ist spätestens vor echten Nutzern nötig. Die Trennung erfolgt dann über Umgebungsvariablen, die in Vercel getrennt für „Production“ und „Preview“ gesetzt werden.
 
 ## 6. Einschränkungen und Gegenmaßnahmen
 
 | Einschränkung | Gegenmaßnahme |
 |---|---|
 | Vercel führt Funktionen standardmäßig in Washington (`iad1`) aus | Region in `vercel.json` auf `["fra1"]` setzen |
-| Supabase Free pausiert nach 1 Woche Inaktivität | Während des Semesters wird regelmäßig entwickelt und getestet. Einen Tag vor der Abnahme prüfen, ob das Produktivprojekt aktiv ist. |
+| Supabase Free pausiert nach 1 Woche Inaktivität | Während des Semesters wird regelmäßig entwickelt und getestet. Einen Tag vor der Abnahme prüfen, ob das Supabase-Projekt aktiv ist. |
 | Supabase Free hat keine Backups | Vor der Abnahme und nach Schema-Änderungen einen Export mit `supabase db dump` erstellen. Das Schema liegt ohnehin als Migration im Repository. |
 | Eingebauter E-Mail-Versand nur an Team-Adressen, 2 pro Stunde | MVP braucht keine E-Mails (Bestätigung ist aus). Für F10 (Passwort zurücksetzen) ist ein eigener SMTP-Dienst nötig – Auswahl und Kosten werden bei der Umsetzung von F10 geprüft. |
 | Vercel bietet den DPA nur für Pro und Enterprise | Im Semester werden nur Testdaten von Team und Testpersonen verarbeitet. Für einen echten Betrieb mit fremden Nutzerdaten wäre Vercel Pro (oder ein anderer Hoster mit DPA) nötig. Vercel ist unter dem EU-U.S. Data Privacy Framework zertifiziert (alle Tarife). |

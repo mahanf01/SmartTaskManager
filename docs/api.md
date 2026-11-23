@@ -12,10 +12,9 @@
   - Alle Endpunkte außer Registrierung, Login und Passwort-Reset-Anforderung erfordern eine gültige Session, sonst `401`.
 - **Nur eigene Daten:** Der Server ermittelt den Nutzer aus der Session, nie aus dem Request-Body. Fremde Aufgaben liefern `404` (nicht `403`), damit nicht erkennbar ist, ob eine ID existiert. Wichtig für die Umsetzung: Unter RLS liefern `UPDATE`/`DELETE` auf fremde Zeilen keinen Fehler, sondern betreffen einfach 0 Zeilen. Der Server fragt deshalb die betroffene Zeile zurück (`.select().maybeSingle()`) und antwortet bei `null` mit `404`. Eine `{id}`, die keine gültige UUID ist, wird ebenfalls mit `404` beantwortet.
 - **Validierung:** Jeder Request-Body und Query-Parameter wird serverseitig mit Zod geprüft. Schemas sind `strict`: unbekannte Felder führen zu `400`. Die Datenbank prüft zusätzlich (siehe data-model.md).
-- **CSRF-Schutz:** Da die Session in Cookies liegt, könnte eine fremde Webseite Anfragen im Namen des Nutzers auslösen. Schutz in drei Schichten:
+- **CSRF-Schutz:** Da die Session in Cookies liegt, könnte eine fremde Webseite Anfragen im Namen des Nutzers auslösen. Schutz in zwei Schichten:
   1. Cookies mit `SameSite=Lax` – werden bei Anfragen von fremden Seiten (außer einfacher Navigation) nicht mitgeschickt.
-  2. `POST`, `PATCH` und `DELETE` mit Body verlangen `Content-Type: application/json` (sonst `415`). Einfache HTML-Formulare fremder Seiten können diesen Typ nicht senden.
-  3. Bei `POST`, `PATCH` und `DELETE` muss der `Origin`-Header zur eigenen Domain passen (sonst `403`).
+  2. `POST`, `PATCH` und `DELETE` mit Body verlangen `Content-Type: application/json` (sonst `415`). Einfache HTML-Formulare fremder Seiten können diesen Typ nicht senden. Auch `PATCH` und `DELETE` können sie nicht auslösen; Skripte fremder Seiten blockiert der Browser, weil die API keine CORS-Freigabe erteilt.
 - **Kein Caching:** Alle Antworten mit Nutzerdaten tragen `Cache-Control: private, no-store`.
 - **Lokales Datum des Nutzers:** Die Priorisierung hängt vom heutigen Datum des Nutzers ab. Der Browser schickt sein lokales Datum als Parameter `today` mit ([ADR-003](adr/003-lokales-datum-als-api-parameter.md)). Siehe [Umsetzung im Client](#umsetzung-im-client).
 
@@ -34,7 +33,7 @@
 | `POST` | `/api/auth/password-reset` | Link zum Zurücksetzen anfordern | F10, US12 | nein (Should) |
 | `POST` | `/api/auth/password` | Neues Passwort setzen (mit Session aus dem Link) | F10, US12 | nein (Should) |
 
-Dazu kommt für F10 die Seite `GET /auth/confirm` (keine API, siehe [Ablauf Passwort zurücksetzen](#ablauf-passwort-zurücksetzen-should-f10)).
+Zu F10 siehe [Ablauf Passwort zurücksetzen](#ablauf-passwort-zurücksetzen-should-f10).
 
 ## Datenobjekt `Task`
 
@@ -87,7 +86,6 @@ Alle Fehler haben dieselbe Form:
 | 400 | `VALIDATION_ERROR` | Ungültiger Body oder Parameter (`fields` nennt die Felder) |
 | 401 | `UNAUTHORIZED` | Keine oder abgelaufene Session |
 | 401 | `INVALID_CREDENTIALS` | Falsche E-Mail oder falsches Passwort beim Login (ohne Hinweis, welches falsch war) oder falsches Passwort beim Konto-Löschen |
-| 403 | `FORBIDDEN_ORIGIN` | `Origin`-Header passt nicht zur eigenen Domain (CSRF-Schutz) |
 | 404 | `NOT_FOUND` | Aufgabe existiert nicht, gehört einem anderen Nutzer oder die ID ist keine gültige UUID |
 | 409 | `EMAIL_TAKEN` | Registrierung mit bereits verwendeter E-Mail |
 | 415 | `UNSUPPORTED_MEDIA_TYPE` | Body ohne `Content-Type: application/json` |
@@ -152,7 +150,7 @@ Request:
 - `importance`: optional, ganze Zahl 1–10, Standard 5
 
 Antwort `201`: die angelegte Aufgabe ohne berechnete Felder. Der Client lädt danach die sortierte Liste neu (US5: „sofort neu sortiert“).
-Fehler: `400`, `401`, `403`, `415`.
+Fehler: `400`, `401`, `415`.
 
 ### `PATCH /api/tasks/{id}`
 
@@ -174,12 +172,12 @@ Nur übergebene Felder werden geändert:
 - Ein leerer Body `{}` oder unbekannte Felder führen zu `400`.
 
 Antwort `200`: die geänderte Aufgabe ohne berechnete Felder.
-Fehler: `400`, `401`, `403`, `404`, `415`.
+Fehler: `400`, `401`, `404`, `415`.
 
 ### `DELETE /api/tasks/{id}`
 
 Antwort `204`. Die Bestätigung vor dem Löschen (US7) erfolgt in der Oberfläche.
-Fehler: `401`, `403`, `404`.
+Fehler: `401`, `404`.
 
 ### `DELETE /api/account`
 
@@ -194,17 +192,13 @@ Request:
 3. Die Session-Cookies werden gelöscht.
 
 Antwort `204`.
-Fehler: `400`, `401`, `403`, `415`.
+Fehler: `400`, `401`, `415`.
 
 Sicherheit: Dieser Endpunkt verwendet als einziger den geheimen Admin-Schlüssel (Service-Role- bzw. Secret-Key, Risiko R6 in architecture.md) – über einen **eigenen** Supabase-Client ohne Cookies (`persistSession: false`, `autoRefreshToken: false`). Würde man den Admin-Schlüssel mit dem Cookie-Client kombinieren, könnte das Token des Nutzers den Admin-Schlüssel überschreiben. Die zu löschende Nutzer-ID kommt ausschließlich aus der Session.
 
 ### Ablauf Passwort zurücksetzen (Should, F10)
 
-Voraussetzung: eigener SMTP-Dienst in Supabase hinterlegt (der eingebaute Versand liefert nur an Team-Adressen, siehe hosting.md).
-
-1. `POST /api/auth/password-reset` mit `{ "email": "anna@example.com" }`. Antwort immer `202`, auch wenn die E-Mail unbekannt ist – sonst ließe sich herausfinden, welche Adressen registriert sind. Supabase verschickt den Link.
-2. Der Link in der E-Mail führt auf `GET /auth/confirm?token_hash=…&type=recovery` (Seite der App). Sie prüft das Token mit `verifyOtp`, setzt die Session-Cookies und leitet auf die Seite „Neues Passwort“ weiter. Verwendet wird das Token-Hash-Verfahren statt PKCE, damit der Link auch in einem anderen Browser funktioniert als dem, in dem er angefordert wurde. Die Weiterleitungs-URLs (Produktion und Vorschau-Deployments) müssen in Supabase freigegeben sein.
-3. `POST /api/auth/password` mit `{ "password": "neuesPasswort" }` (mindestens 8 Zeichen). Antwort `204`.
+Nicht Teil des MVP; die Details werden bei der Umsetzung von F10 festgelegt. Der Nutzer fordert mit seiner E-Mail einen Link an (Antwort immer `202`, damit nicht erkennbar ist, welche Adressen registriert sind). Der Link führt in die App, dort setzt der Nutzer ein neues Passwort (mindestens 8 Zeichen, Antwort `204`). Link und Prüfung übernimmt Supabase Auth; nötig ist ein eigener SMTP-Dienst (siehe hosting.md).
 
 ## Umsetzung im Client
 

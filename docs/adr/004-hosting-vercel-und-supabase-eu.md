@@ -12,7 +12,7 @@ Das Hosting muss Next.js mit Server-Funktionen ausführen, Daten in der EU speic
 - **App:** Vercel Hobby, Funktions-Region Frankfurt (`fra1`, in `vercel.json` gesetzt).
 - **Datenbank und Auth:** Supabase Free, Region Frankfurt (`eu-central-1`).
 - Deployment automatisch bei Push auf `main`, Vorschau-Deployments für Pull Requests.
-- Zwei Supabase-Projekte (beide kostenlos): eines für Produktion, eines für Entwicklung, Vorschau-Deployments und E2E-Tests ([hosting.md](../hosting.md#5-umgebungen)).
+- Ein Supabase-Projekt für das Semester (nur Testdaten). Optional ein zweites kostenloses für Entwicklung und Vorschau, spätestens vor echten Nutzern ([hosting.md](../hosting.md#5-umgebungen)).
 
 ## Betrachtete Alternativen
 

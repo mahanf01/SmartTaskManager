@@ -178,6 +178,8 @@ Zu jedem Punkt hat die AI Optionen mit einer Empfehlung genannt. Das Team hat di
 
 **Team-Entscheidungen dazu:** Konto löschen nur nach erneuter Passworteingabe (#18); ADR-003 blieb zunächst „vorgeschlagen“ und wurde danach vom Team angenommen.
 
+**Danach vereinfacht:** Wir haben gefragt, ob das Ergebnis nicht „over-engineered“ ist. Die AI hielt die Architektur für angemessen, nannte aber Details, die für unser Projekt zu viel sind. Daraufhin haben wir die `Origin`-Prüfung (`403`) gestrichen, den Ablauf von „Passwort zurücksetzen“ gekürzt und das zweite Supabase-Projekt sowie Playwright als optional eingestuft. Die Tabelle oben zeigt den Stand vor dieser Vereinfachung.
+
 **Nicht übernommen:** Ein Prüfer meinte, „Vercel Hobby nur nicht-kommerziell“ stehe in Vercels Fair-Use-Richtlinien. Die Recherche hatte genau diese Seite ohne Treffer durchsucht. Da sich die Aussagen widersprechen, bleibt die Angabe in hosting.md als „nur aus Drittquellen“ gekennzeichnet.
 
 # Reflexion Phase 2
